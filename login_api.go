@@ -2,20 +2,15 @@ package login_sdk_go
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
-type LoginApiInterface interface {
-	GetProjectKeysForLoginProject(projectID string) (RSAKeysResponse, error)
-}
-
-type LoginApi struct {
-	baseUrl string
-}
-
-type RSAKeysResponse []struct {
+type RSAKeyResponse struct {
 	Alg      string `json:"alg"`
 	Exponent string `json:"e"`
 	Kid      string `json:"kid"`
@@ -24,15 +19,21 @@ type RSAKeysResponse []struct {
 	Use      string `json:"use"`
 }
 
-type LoginToken struct {
-	AccessToken  string
-	RefreshToken string
-	ExpiresIn    int
+type RSAKeysResponse []RSAKeyResponse
+
+type LoginTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
+type LoginApi struct {
+	baseUrl string
 }
 
 func (l LoginApi) GetProjectKeysForLoginProject(projectID string) (RSAKeysResponse, error) {
-	url := l.baseUrl + "/api/projects/" + projectID + "/keys"
-	res, _ := http.Get(url)
+	endpoint := l.baseUrl + "/api/projects/" + projectID + "/keys"
+	res, _ := http.Get(endpoint)
 	defer res.Body.Close()
 	var keysResp RSAKeysResponse
 
@@ -43,28 +44,39 @@ func (l LoginApi) GetProjectKeysForLoginProject(projectID string) (RSAKeysRespon
 	return keysResp, nil
 }
 
-func (l LoginApi) RefreshToken(refreshToken string) (LoginToken, error) {
-	url := l.baseUrl + "/api/oauth2/token"
-	payload := strings.NewReader("refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=2&client_id=")
-
+func (l LoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (LoginTokenResponse, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, payload)
+	endpoint := l.baseUrl + "/api/oauth2/token"
+
+	data := url.Values{}
+	data.Set("client_id", fmt.Sprint(clientId))
+	data.Add("client_secret", clientSecret)
+	data.Add("grant_type", "refresh_token")
+	data.Add("refresh_token", refreshToken)
+
+	req, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	defer res.Body.Close()
-	var loginToken LoginToken
+
+	if res.StatusCode != 200 {
+		return LoginTokenResponse{}, errors.New("http request error: " + res.Status)
+	}
+
+	var loginToken LoginTokenResponse
 
 	if err := json.NewDecoder(res.Body).Decode(&loginToken); err != nil {
-		return LoginToken{}, err
+		return LoginTokenResponse{}, err
 	}
 
 	return loginToken, nil

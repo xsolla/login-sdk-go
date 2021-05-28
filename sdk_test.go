@@ -1,6 +1,9 @@
 package login_sdk_go
 
 import (
+	"fmt"
+	"os"
+	"strconv"
 	"testing"
 )
 
@@ -29,11 +32,17 @@ func TestValidateRsaToken(t *testing.T) {
 }
 
 func TestRefreshToken(t *testing.T) {
-	refreshToken := "WXU1KZrLx1dr6Lt1A04cilCV5cvVKnERVvB0K4oCz7c.w1jO5MyVmEHly30K-kehA9tvr4AT7wFaPolt0l4JCcc"
+	refreshToken := "Gas4JcYby1sGkd1-y6hl7rQbUZ8Cc8Z0CZcAcEIi3X8.pPpDvm0KlLK7DqSM_Zt7Ru8ODLoru62XbE4pFIIw1VM"
+	clientId, _ := strconv.Atoi(os.Getenv("LOGIN_CLIENT_ID"))
+
 	loginSgk := New(Options{
-		LoginProjectId: "40db2ea4-5d42-11e6-a3ff-005056a0e04a",
+		LoginProjectId:    "40db2ea4-5d42-11e6-a3ff-005056a0e04a",
+		LoginClientId:     clientId,
+		LoginClientSecret: os.Getenv("LOGIN_CLIENT_SECRET"),
 	})
-	_, err := loginSgk.Refresh(refreshToken)
+	res, err := loginSgk.Refresh(refreshToken)
+
+	fmt.Print(res)
 
 	if err != nil {
 		t.Fatal(err)
