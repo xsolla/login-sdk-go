@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type RSAKeyResponse struct {
+type RSAKey struct {
 	Alg      string `json:"alg"`
 	Exponent string `json:"e"`
 	Kid      string `json:"kid"`
@@ -19,23 +19,30 @@ type RSAKeyResponse struct {
 	Use      string `json:"use"`
 }
 
-type RSAKeysResponse []RSAKeyResponse
-
-type LoginTokenResponse struct {
+type LoginToken struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int    `json:"expires_in"`
 }
 
-type LoginApi struct {
+type LoginApi interface {
+	GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error)
+	RefreshToken(token string, clientId int, clientSecret string) (LoginToken, error)
+}
+
+func NewHttpLoginApi(baseUrl string) LoginApi {
+	return httpLoginApi{baseUrl}
+}
+
+type httpLoginApi struct {
 	baseUrl string
 }
 
-func (l LoginApi) GetProjectKeysForLoginProject(projectID string) (RSAKeysResponse, error) {
+func (l httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error) {
 	endpoint := l.baseUrl + "/api/projects/" + projectID + "/keys"
 	res, _ := http.Get(endpoint)
 	defer res.Body.Close()
-	var keysResp RSAKeysResponse
+	var keysResp []RSAKey
 
 	if err := json.NewDecoder(res.Body).Decode(&keysResp); err != nil {
 		return nil, err
@@ -44,7 +51,7 @@ func (l LoginApi) GetProjectKeysForLoginProject(projectID string) (RSAKeysRespon
 	return keysResp, nil
 }
 
-func (l LoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (LoginTokenResponse, error) {
+func (l httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (LoginToken, error) {
 	client := &http.Client{}
 	endpoint := l.baseUrl + "/api/oauth2/token"
 
@@ -70,13 +77,13 @@ func (l LoginApi) RefreshToken(refreshToken string, clientId int, clientSecret s
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return LoginTokenResponse{}, errors.New("http request error: " + res.Status)
+		return LoginToken{}, errors.New("http request error: " + res.Status)
 	}
 
-	var loginToken LoginTokenResponse
+	var loginToken LoginToken
 
 	if err := json.NewDecoder(res.Body).Decode(&loginToken); err != nil {
-		return LoginTokenResponse{}, err
+		return LoginToken{}, err
 	}
 
 	return loginToken, nil

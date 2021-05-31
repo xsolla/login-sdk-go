@@ -1,6 +1,7 @@
 package login_sdk_go
 
 import (
+	"crypto/rsa"
 	"log"
 	"math/big"
 )
@@ -11,4 +12,11 @@ func fromBase16(base16 string) *big.Int {
 		log.Fatal("bad number: " + base16)
 	}
 	return i
+}
+
+func createPublicKey(k RSAKey) *rsa.PublicKey {
+	return &rsa.PublicKey{
+		N: fromBase16(k.Modulus),
+		E: int(fromBase16(k.Exponent).Int64()),
+	}
 }

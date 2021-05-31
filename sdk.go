@@ -2,6 +2,7 @@ package login_sdk_go
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"time"
 )
 
 const (
@@ -9,46 +10,53 @@ const (
 	defaultIssuer      = "https://login.xsolla.com"
 )
 
-type Options struct {
+type Config struct {
 	ShaSecretKey      string
 	LoginApiUrl       string
 	LoginProjectId    string
 	Issuer            string
 	LoginClientId     int
 	LoginClientSecret string
+	Cache             Cache
 }
+
+type ConfigOption func(*Config)
 
 type loginSdk struct {
-	Options
+	Config
 }
 
-func New(options Options) *loginSdk {
-	options.fillDefaults()
+func New(config Config) *loginSdk {
+	config.fillDefaults()
 
 	l := &loginSdk{
-		options,
+		config,
 	}
 
 	return l
 }
 
-func (o *Options) fillDefaults() {
-	if o.LoginApiUrl == "" {
-		o.LoginApiUrl = defaultLoginApiUrl
+func (c *Config) fillDefaults() {
+	if c.LoginApiUrl == "" {
+		c.LoginApiUrl = defaultLoginApiUrl
 	}
 
-	if o.Issuer == "" {
-		o.Issuer = defaultIssuer
+	if c.Issuer == "" {
+		c.Issuer = defaultIssuer
+	}
+
+	if c.Cache == nil {
+		c.Cache = NewDefaultCache(1 * time.Minute)
 	}
 }
 
 func (sdk loginSdk) Validate(tokenString string) (*jwt.Token, error) {
-	token, err := MasterValidator{sdk.Options}.Validate(tokenString)
+	token, err := MasterValidator{sdk.Config}.Validate(tokenString)
 	return token, err
 }
 
-func (sdk loginSdk) Refresh(refreshToken string) (*LoginTokenResponse, error) {
-	loginApi := LoginApi{baseUrl: sdk.LoginApiUrl}
+func (sdk loginSdk) Refresh(refreshToken string) (*LoginToken, error) {
+	loginApi := httpLoginApi{baseUrl: sdk.LoginApiUrl}
 	response, err := loginApi.RefreshToken(refreshToken, sdk.LoginClientId, sdk.LoginClientSecret)
 	return &response, err
 }
