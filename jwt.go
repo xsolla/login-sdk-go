@@ -32,7 +32,7 @@ func (mv MasterValidator) Validate(tokenString string) (*jwt.Token, error) {
 		case jwt.SigningMethodHS256:
 			return []byte(mv.ShaSecretKey), nil
 		default:
-			return nil, errors.New(signingMethod.Alg() + "algorithm is not supported")
+			return nil, errors.New(signingMethod.Alg() + " algorithm is not supported")
 		}
 	})
 

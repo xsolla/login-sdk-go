@@ -7,14 +7,12 @@ import (
 
 const (
 	defaultLoginApiUrl = "https://login.xsolla.com"
-	defaultIssuer      = "https://login.xsolla.com"
 )
 
 type Config struct {
 	ShaSecretKey      string
 	LoginApiUrl       string
 	LoginProjectId    string
-	Issuer            string
 	LoginClientId     int
 	LoginClientSecret string
 	Cache             Cache
@@ -39,10 +37,6 @@ func New(config Config) *loginSdk {
 func (c *Config) fillDefaults() {
 	if c.LoginApiUrl == "" {
 		c.LoginApiUrl = defaultLoginApiUrl
-	}
-
-	if c.Issuer == "" {
-		c.Issuer = defaultIssuer
 	}
 
 	if c.Cache == nil {

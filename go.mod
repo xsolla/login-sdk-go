@@ -1,4 +1,4 @@
-module login-sdk-go
+module gitlab.loc/sdk-login/login-sdk-go
 
 go 1.16
 
