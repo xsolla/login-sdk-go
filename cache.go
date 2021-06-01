@@ -28,7 +28,7 @@ func (dc DefaultCache) Set(key string, values interface{}) {
 	dc.cache.Set(key, values, cache.DefaultExpiration)
 }
 
-func NewCachedValidationKeysStorage(client LoginApi, cache Cache) ValidationKeysGetter {
+func NewCachedValidationKeysStorage(client ValidationKeysGetter, cache Cache) ValidationKeysGetter {
 	return cachedValidationKeysStorage{
 		client: client,
 		cache:  cache,
