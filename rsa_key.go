@@ -9,12 +9,12 @@ type ValidationKeysGetter interface {
 	GetProjectKeysForLoginProject(projectId string) ([]RSAKey, error)
 }
 
-type RSASigningKey struct {
+type RSAPublicKey struct {
 	projectId string
 	storage   ValidationKeysGetter
 }
 
-func (rsa RSASigningKey) getSigningKey(kid string) (*rsa.PublicKey, error) {
+func (rsa RSAPublicKey) getPublicKey(kid string) (*rsa.PublicKey, error) {
 	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(rsa.projectId)
 
 	if err != nil {
