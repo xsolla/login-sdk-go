@@ -31,16 +31,17 @@ type LoginApi interface {
 }
 
 func NewHttpLoginApi(baseUrl string) LoginApi {
-	return httpLoginApi{baseUrl}
+	return httpLoginApi{&http.Client{}, baseUrl}
 }
 
 type httpLoginApi struct {
+	Client  *http.Client
 	baseUrl string
 }
 
-func (l httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error) {
-	endpoint := l.baseUrl + "/api/projects/" + projectID + "/keys"
-	res, _ := http.Get(endpoint)
+func (api httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error) {
+	endpoint := api.baseUrl + "/api/projects/" + projectID + "/keys"
+	res, _ := api.Client.Get(endpoint)
 	defer res.Body.Close()
 	var keysResp []RSAKey
 
@@ -51,9 +52,8 @@ func (l httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKey,
 	return keysResp, nil
 }
 
-func (l httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (LoginToken, error) {
-	client := &http.Client{}
-	endpoint := l.baseUrl + "/api/oauth2/token"
+func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (LoginToken, error) {
+	endpoint := api.baseUrl + "/api/oauth2/token"
 
 	data := url.Values{}
 	data.Set("client_id", fmt.Sprint(clientId))
@@ -69,7 +69,7 @@ func (l httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecr
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	res, err := client.Do(req)
+	res, err := api.Client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
