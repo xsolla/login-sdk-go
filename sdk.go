@@ -45,7 +45,7 @@ func (c *Config) fillDefaults() {
 }
 
 func (sdk loginSdk) Validate(tokenString string) (*jwt.Token, error) {
-	token, err := MasterValidator{sdk.Config}.Validate(tokenString)
+	token, err := NewMasterValidator(sdk.Config).Validate(tokenString)
 	return token, err
 }
 
