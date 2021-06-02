@@ -49,7 +49,12 @@ type httpLoginApi struct {
 
 func (api httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error) {
 	endpoint := api.baseUrl + "/api/projects/" + projectID + "/keys"
-	res, _ := api.Client.Get(endpoint)
+	res, err := api.Client.Get(endpoint)
+
+	if err != nil {
+		return nil, err
+	}
+
 	defer res.Body.Close()
 	var keysResp []RSAKey
 
