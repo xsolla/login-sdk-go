@@ -1,6 +1,7 @@
 package login_sdk_go
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -34,8 +35,11 @@ type LoginApi interface {
 	RefreshToken(token string, clientId int, clientSecret string) (*LoginToken, error)
 }
 
-func NewHttpLoginApi(baseUrl string) LoginApi {
-	return httpLoginApi{&http.Client{Timeout: Timeout}, baseUrl}
+func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) LoginApi {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
+	}
+	return httpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
 }
 
 type httpLoginApi struct {
@@ -66,7 +70,6 @@ func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSe
 	data.Add("refresh_token", refreshToken)
 
 	req, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
-
 	if err != nil {
 		return nil, errors.New("http request error: " + err.Error())
 	}
@@ -77,15 +80,12 @@ func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSe
 	if err != nil {
 		return nil, errors.New("http request error: " + err.Error())
 	}
-
 	defer res.Body.Close()
-
 	if res.StatusCode != 200 {
 		return nil, errors.New("http request error: " + res.Status)
 	}
 
 	var loginToken LoginToken
-
 	if err := json.NewDecoder(res.Body).Decode(&loginToken); err != nil {
 		return nil, err
 	}

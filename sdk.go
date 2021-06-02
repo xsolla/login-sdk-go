@@ -9,6 +9,7 @@ const (
 )
 
 type Config struct {
+	IgnoreSslErrors   bool
 	ShaSecretKey      string
 	LoginApiUrl       string
 	LoginProjectId    string
@@ -22,18 +23,19 @@ type ConfigOption func(*Config)
 type loginSdk struct {
 	config    Config
 	validator Validator
+	refresher Refresher
 	loginApi  *LoginApi
 }
 
 func New(config Config) *loginSdk {
 	config.fillDefaults()
 
-	loginApi := NewHttpLoginApi(config.LoginApiUrl)
+	loginApi := NewHttpLoginApi(config.LoginApiUrl, config.IgnoreSslErrors)
 
 	l := &loginSdk{
 		config:    config,
 		validator: NewMasterValidator(config, &loginApi),
-		loginApi:  &loginApi,
+		refresher: NewTokenRefresher(&loginApi, config.LoginClientId, config.LoginClientSecret),
 	}
 
 	return l
@@ -55,6 +57,5 @@ func (sdk *loginSdk) Validate(tokenString string) *WrappedError {
 }
 
 func (sdk loginSdk) Refresh(refreshToken string) (*LoginToken, error) {
-	loginApi := *sdk.loginApi
-	return loginApi.RefreshToken(refreshToken, sdk.config.LoginClientId, sdk.config.LoginClientSecret)
+	return sdk.refresher.Refresh(refreshToken)
 }
