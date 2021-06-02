@@ -10,7 +10,7 @@ import (
 
 func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	testProjectId := "test"
-	expected := []RSAKey{{Kid: "12"}, {Kid: "21"}}
+	expected := &[]RSAKey{{Kid: "12"}, {Kid: "21"}}
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		assert.Equal(t, req.URL.String(), "/api/projects/"+testProjectId+"/keys")
@@ -30,11 +30,11 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	body, err := api.GetProjectKeysForLoginProject(testProjectId)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expected, body)
+	assert.Equal(t, expected, &body)
 }
 
 func TestHttpLoginApi_RefreshToken(t *testing.T) {
-	expected := LoginToken{
+	expected := &LoginToken{
 		AccessToken:  "test_access",
 		RefreshToken: "test_refresh",
 		ExpiresIn:    3600,

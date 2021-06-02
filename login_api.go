@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
+)
+
+const (
+	Timeout = 5 * time.Second
 )
 
 type RSAKey struct {
@@ -27,11 +31,11 @@ type LoginToken struct {
 
 type LoginApi interface {
 	GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error)
-	RefreshToken(token string, clientId int, clientSecret string) (LoginToken, error)
+	RefreshToken(token string, clientId int, clientSecret string) (*LoginToken, error)
 }
 
 func NewHttpLoginApi(baseUrl string) LoginApi {
-	return httpLoginApi{&http.Client{}, baseUrl}
+	return httpLoginApi{&http.Client{Timeout: Timeout}, baseUrl}
 }
 
 type httpLoginApi struct {
@@ -52,7 +56,7 @@ func (api httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKe
 	return keysResp, nil
 }
 
-func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (LoginToken, error) {
+func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (*LoginToken, error) {
 	endpoint := api.baseUrl + "/api/oauth2/token"
 
 	data := url.Values{}
@@ -64,27 +68,27 @@ func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSe
 	req, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.New("http request error: " + err.Error())
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := api.Client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.New("http request error: " + err.Error())
 	}
 
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return LoginToken{}, errors.New("http request error: " + res.Status)
+		return nil, errors.New("http request error: " + res.Status)
 	}
 
 	var loginToken LoginToken
 
 	if err := json.NewDecoder(res.Body).Decode(&loginToken); err != nil {
-		return LoginToken{}, err
+		return nil, err
 	}
 
-	return loginToken, nil
+	return &loginToken, nil
 }

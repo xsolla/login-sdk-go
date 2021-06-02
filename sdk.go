@@ -1,7 +1,6 @@
 package login_sdk_go
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
@@ -21,14 +20,20 @@ type Config struct {
 type ConfigOption func(*Config)
 
 type loginSdk struct {
-	Config
+	config    Config
+	validator Validator
+	loginApi  *LoginApi
 }
 
 func New(config Config) *loginSdk {
 	config.fillDefaults()
 
+	loginApi := NewHttpLoginApi(config.LoginApiUrl)
+
 	l := &loginSdk{
-		config,
+		config:    config,
+		validator: NewMasterValidator(config, &loginApi),
+		loginApi:  &loginApi,
 	}
 
 	return l
@@ -40,17 +45,16 @@ func (c *Config) fillDefaults() {
 	}
 
 	if c.Cache == nil {
-		c.Cache = NewDefaultCache(1 * time.Minute)
+		c.Cache = NewDefaultCache(1 * time.Hour)
 	}
 }
 
-func (sdk loginSdk) Validate(tokenString string) (*jwt.Token, error) {
-	token, err := NewMasterValidator(sdk.Config).Validate(tokenString)
-	return token, err
+func (sdk *loginSdk) Validate(tokenString string) *WrappedError {
+	err := sdk.validator.Validate(tokenString)
+	return WrapError(err)
 }
 
 func (sdk loginSdk) Refresh(refreshToken string) (*LoginToken, error) {
-	loginApi := httpLoginApi{baseUrl: sdk.LoginApiUrl}
-	response, err := loginApi.RefreshToken(refreshToken, sdk.LoginClientId, sdk.LoginClientSecret)
-	return &response, err
+	loginApi := *sdk.loginApi
+	return loginApi.RefreshToken(refreshToken, sdk.config.LoginClientId, sdk.config.LoginClientSecret)
 }

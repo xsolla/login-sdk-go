@@ -11,9 +11,9 @@ func TestValidateHmacToken(t *testing.T) {
 	loginSgk := New(Config{
 		ShaSecretKey: "your-256-bit-secret",
 	})
-	_, err := loginSgk.Validate(token)
+	err := loginSgk.Validate(token)
 
-	if err != nil {
+	if !err.Valid() {
 		t.Fatal(err)
 	}
 }
@@ -23,9 +23,9 @@ func TestValidateRsaToken(t *testing.T) {
 	loginSgk := New(Config{
 		LoginProjectId: "40db2ea4-5d42-11e6-a3ff-005056a0e04a",
 	})
-	_, err := loginSgk.Validate(token)
+	err := loginSgk.Validate(token)
 
-	if err != nil {
+	if !err.Valid() {
 		t.Fatal(err)
 	}
 }
