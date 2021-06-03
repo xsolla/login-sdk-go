@@ -3,6 +3,7 @@ package login_sdk_go
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
 )
 
 type Validator interface {
@@ -15,14 +16,14 @@ type MasterValidator struct {
 	hs256SigningKey SigningKeyGetter
 }
 
-func NewMasterValidator(config Config, client *LoginApi) *MasterValidator {
+func NewMasterValidator(config Config, client *interfaces.LoginApi) *MasterValidator {
 	cks := NewCachedValidationKeysStorage(*client, config.Cache)
-	rsa := RSAPublicKey{storage: cks, projectId: config.LoginProjectId}
+	rsa := RSAPublicKeyGetter{storage: cks, projectId: config.LoginProjectId}
 
 	return &MasterValidator{
 		Config:          config,
-		rs256SigningKey: RS256SigningKey{config, rsa},
-		hs256SigningKey: HS256SigningKey{config.ShaSecretKey},
+		rs256SigningKey: RS256SigningKeyGetter{config, rsa},
+		hs256SigningKey: HS256SigningKeyGetter{config.ShaSecretKey},
 	}
 }
 

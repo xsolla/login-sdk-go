@@ -2,18 +2,19 @@ package login_sdk_go
 
 import (
 	"github.com/stretchr/testify/require"
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 	"testing"
 )
 
 type cacheTestClient struct {
-	result *[]RSAKey
+	result *[]model.ProjectPublicKey
 }
 
 type cacheTestCache struct {
-	cached *[]RSAKey
+	cached *[]model.ProjectPublicKey
 }
 
-func (f cacheTestClient) GetProjectKeysForLoginProject(projectId string) ([]RSAKey, error) {
+func (f cacheTestClient) GetProjectKeysForLoginProject(projectId string) ([]model.ProjectPublicKey, error) {
 	return *f.result, nil
 }
 
@@ -28,7 +29,7 @@ func (c cacheTestCache) Set(key string, value interface{}) {}
 
 func TestCachedValidationKeysStorage(t *testing.T) {
 	t.Run("get from cache", func(t *testing.T) {
-		var storedInCache = []RSAKey{
+		var storedInCache = []model.ProjectPublicKey{
 			{
 				Alg:      "RS256",
 				Exponent: "10001",
@@ -39,7 +40,7 @@ func TestCachedValidationKeysStorage(t *testing.T) {
 			},
 		}
 
-		var givenByClient []RSAKey
+		var givenByClient []model.ProjectPublicKey
 
 		var cks = NewCachedValidationKeysStorage(cacheTestClient{result: &givenByClient}, cacheTestCache{cached: &storedInCache})
 
@@ -49,9 +50,9 @@ func TestCachedValidationKeysStorage(t *testing.T) {
 	})
 
 	t.Run("get fresh", func(t *testing.T) {
-		var storedInCache []RSAKey
+		var storedInCache []model.ProjectPublicKey
 
-		var givenByClient = []RSAKey{
+		var givenByClient = []model.ProjectPublicKey{
 			{
 				Alg:      "RS256",
 				Exponent: "10001",

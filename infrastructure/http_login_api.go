@@ -1,4 +1,4 @@
-package login_sdk_go
+package infrastructure
 
 import (
 	"crypto/tls"
@@ -9,45 +9,28 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 const (
 	Timeout = 5 * time.Second
 )
 
-type RSAKey struct {
-	Alg      string `json:"alg"`
-	Exponent string `json:"e"`
-	Kid      string `json:"kid"`
-	Kty      string `json:"kty"`
-	Modulus  string `json:"n"`
-	Use      string `json:"use"`
-}
-
-type LoginToken struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int    `json:"expires_in"`
-}
-
-type LoginApi interface {
-	GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error)
-	RefreshToken(token string, clientId int, clientSecret string) (*LoginToken, error)
-}
-
-func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) LoginApi {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
-	}
-	return httpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
-}
-
-type httpLoginApi struct {
+type HttpLoginApi struct {
 	Client  *http.Client
 	baseUrl string
 }
 
-func (api httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKey, error) {
+func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) interfaces.LoginApi {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
+	}
+	return HttpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
+}
+
+func (api HttpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]model.ProjectPublicKey, error) {
 	endpoint := api.baseUrl + "/api/projects/" + projectID + "/keys"
 	res, err := api.Client.Get(endpoint)
 
@@ -56,7 +39,7 @@ func (api httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKe
 	}
 
 	defer res.Body.Close()
-	var keysResp []RSAKey
+	var keysResp []model.ProjectPublicKey
 
 	if err := json.NewDecoder(res.Body).Decode(&keysResp); err != nil {
 		return nil, err
@@ -65,7 +48,7 @@ func (api httpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]RSAKe
 	return keysResp, nil
 }
 
-func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (*LoginToken, error) {
+func (api HttpLoginApi) RefreshToken(refreshToken string, clientId int, clientSecret string) (*model.LoginToken, error) {
 	endpoint := api.baseUrl + "/api/oauth2/token"
 
 	data := url.Values{}
@@ -90,7 +73,7 @@ func (api httpLoginApi) RefreshToken(refreshToken string, clientId int, clientSe
 		return nil, errors.New("http request error: " + res.Status)
 	}
 
-	var loginToken LoginToken
+	var loginToken model.LoginToken
 	if err := json.NewDecoder(res.Body).Decode(&loginToken); err != nil {
 		return nil, err
 	}

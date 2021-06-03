@@ -2,6 +2,11 @@ package login_sdk_go
 
 import (
 	"time"
+
+	"gitlab.loc/sdk-login/login-sdk-go/cache"
+	"gitlab.loc/sdk-login/login-sdk-go/infrastructure"
+	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 const (
@@ -15,7 +20,7 @@ type Config struct {
 	LoginProjectId    string
 	LoginClientId     int
 	LoginClientSecret string
-	Cache             Cache
+	Cache             cache.ValidationKeysCache
 }
 
 type ConfigOption func(*Config)
@@ -24,13 +29,13 @@ type loginSdk struct {
 	config    Config
 	validator Validator
 	refresher Refresher
-	loginApi  *LoginApi
+	loginApi  *interfaces.LoginApi
 }
 
 func New(config Config) *loginSdk {
 	config.fillDefaults()
 
-	loginApi := NewHttpLoginApi(config.LoginApiUrl, config.IgnoreSslErrors)
+	loginApi := infrastructure.NewHttpLoginApi(config.LoginApiUrl, config.IgnoreSslErrors)
 
 	l := &loginSdk{
 		config:    config,
@@ -47,7 +52,7 @@ func (c *Config) fillDefaults() {
 	}
 
 	if c.Cache == nil {
-		c.Cache = NewDefaultCache(1 * time.Hour)
+		c.Cache = cache.NewDefaultCache(1 * time.Hour)
 	}
 }
 
@@ -56,6 +61,6 @@ func (sdk *loginSdk) Validate(tokenString string) *WrappedError {
 	return WrapError(err)
 }
 
-func (sdk loginSdk) Refresh(refreshToken string) (*LoginToken, error) {
+func (sdk loginSdk) Refresh(refreshToken string) (*model.LoginToken, error) {
 	return sdk.refresher.Refresh(refreshToken)
 }

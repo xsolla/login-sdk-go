@@ -4,34 +4,35 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 	"math/big"
 	"testing"
 )
 
 type testKeysStorage struct {
-	result *[]RSAKey
+	result *[]model.ProjectPublicKey
 	err    error
 }
 
-func (s testKeysStorage) GetProjectKeysForLoginProject(projectId string) ([]RSAKey, error) {
+func (s testKeysStorage) GetProjectKeysForLoginProject(projectId string) ([]model.ProjectPublicKey, error) {
 	return *s.result, s.err
 }
 
 func TestGetPublicKey(t *testing.T) {
 	t.Run("should return err", func(t *testing.T) {
-		pk := RSAPublicKey{projectId: "project-1", storage: testKeysStorage{result: &[]RSAKey{}, err: fmt.Errorf("an error occurred")}}
+		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{}, err: fmt.Errorf("an error occurred")}}
 		_, err := pk.getPublicKey("42")
 		assert.Error(t, err)
 	})
 
 	t.Run("should return error if there is no keys for project", func(t *testing.T) {
-		pk := RSAPublicKey{projectId: "project-1", storage: testKeysStorage{result: &[]RSAKey{}}}
+		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{}}}
 		_, err := pk.getPublicKey("42")
 		assert.Error(t, err)
 	})
 
 	t.Run("should return error if there is no key with proper Kid", func(t *testing.T) {
-		pk := RSAPublicKey{projectId: "project-1", storage: testKeysStorage{result: &[]RSAKey{{Kid: "12"}}}}
+		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{{Kid: "12"}}}}
 		_, err := pk.getPublicKey("42")
 		assert.Error(t, err)
 	})
@@ -44,7 +45,7 @@ func TestGetPublicKey(t *testing.T) {
 			N: modulusBigInt,
 		}
 
-		pk := RSAPublicKey{projectId: "project-1", storage: testKeysStorage{result: &[]RSAKey{{
+		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{{
 			Alg:      "RS256",
 			Exponent: "10001",
 			Kid:      "42",

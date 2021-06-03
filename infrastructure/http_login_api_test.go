@@ -1,4 +1,4 @@
-package login_sdk_go
+package infrastructure
 
 import (
 	"encoding/json"
@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	testProjectId := "test"
-	expected := &[]RSAKey{{Kid: "12"}, {Kid: "21"}}
+	expected := &[]model.ProjectPublicKey{{Kid: "12"}, {Kid: "21"}}
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		assert.Equal(t, req.URL.String(), "/api/projects/"+testProjectId+"/keys")
@@ -26,7 +28,7 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	}))
 	defer server.Close()
 
-	api := httpLoginApi{server.Client(), server.URL}
+	api := HttpLoginApi{server.Client(), server.URL}
 	body, err := api.GetProjectKeysForLoginProject(testProjectId)
 
 	assert.NoError(t, err)
@@ -34,7 +36,7 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 }
 
 func TestHttpLoginApi_RefreshToken(t *testing.T) {
-	expected := &LoginToken{
+	expected := &model.LoginToken{
 		AccessToken:  "test_access",
 		RefreshToken: "test_refresh",
 		ExpiresIn:    3600,
@@ -54,7 +56,7 @@ func TestHttpLoginApi_RefreshToken(t *testing.T) {
 	}))
 	defer server.Close()
 
-	api := httpLoginApi{server.Client(), server.URL}
+	api := HttpLoginApi{server.Client(), server.URL}
 	body, err := api.RefreshToken("refresh_token", 1, "secret")
 
 	assert.NoError(t, err)

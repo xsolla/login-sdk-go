@@ -5,16 +5,12 @@ import (
 	"errors"
 )
 
-type ValidationKeysGetter interface {
-	GetProjectKeysForLoginProject(projectId string) ([]RSAKey, error)
-}
-
-type RSAPublicKey struct {
+type RSAPublicKeyGetter struct {
 	projectId string
-	storage   ValidationKeysGetter
+	storage   ProjectKeysGetter
 }
 
-func (rsa RSAPublicKey) getPublicKey(kid string) (*rsa.PublicKey, error) {
+func (rsa RSAPublicKeyGetter) getPublicKey(kid string) (*rsa.PublicKey, error) {
 	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(rsa.projectId)
 
 	if err != nil {
@@ -27,7 +23,7 @@ func (rsa RSAPublicKey) getPublicKey(kid string) (*rsa.PublicKey, error) {
 
 	for i := range keysResp {
 		if keysResp[i].Kid == kid {
-			return createPublicKey(keysResp[0]), nil
+			return keysResp[0].CreateRSAPublicKey(), nil
 		}
 	}
 

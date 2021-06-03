@@ -2,6 +2,7 @@ package login_sdk_go
 
 import (
 	"github.com/stretchr/testify/require"
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 	"testing"
 )
 
@@ -40,17 +41,17 @@ func TestValidateExpiredRsaToken(t *testing.T) {
 }
 
 type testRefresher struct {
-	result *LoginToken
+	result *model.LoginToken
 }
 
-func (r testRefresher) Refresh(t string) (*LoginToken, error) {
+func (r testRefresher) Refresh(t string) (*model.LoginToken, error) {
 	return r.result, nil
 }
 
 func TestRefreshToken(t *testing.T) {
 	refreshToken := "YgAhlbpA6_y63D_OCOygdloo_ci87h8b5tF93oKasqM.w2PFSamrNadObdcZLCIneA0XHe8zae1EWsURh_6-eIg"
 
-	expected := &LoginToken{
+	expected := &model.LoginToken{
 		RefreshToken: "123",
 		AccessToken:  "123",
 		ExpiresIn:    123,

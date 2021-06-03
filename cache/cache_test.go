@@ -1,4 +1,4 @@
-package login_sdk_go
+package cache
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -10,8 +10,8 @@ import (
 func TestNewDefaultCache(t *testing.T) {
 	var dc = NewDefaultCache(time.Minute)
 
-	t.Run("implements Cache Interface", func(t *testing.T) {
-		assert.Implements(t, (*Cache)(nil), dc)
+	t.Run("implements ValidationKeysCache Interface", func(t *testing.T) {
+		assert.Implements(t, (*ValidationKeysCache)(nil), dc)
 	})
 
 	t.Run("shouldn't find any key in empty cache", func(t *testing.T) {
