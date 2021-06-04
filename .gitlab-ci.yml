@@ -18,7 +18,7 @@ before_script:
 stages:
   - test
   - build
-  - deploy
+  - release
 
 format:
   stage: test
@@ -34,3 +34,17 @@ compile:
   artifacts:
     paths:
       - mybinary
+
+release:
+  stage: release
+  image:
+    name: registry.gitlab.com/go-semantic-release/semantic-release:latest
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  script:
+    - semantic-release --provider gitlab --version-file
+  artifacts:
+    paths:
+      - .version
