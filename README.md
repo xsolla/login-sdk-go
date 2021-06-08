@@ -20,7 +20,7 @@ func main() {
     
 	err := loginSgk.Validate("<MY_TOKEN>")
 	
-	if login_sdk_go.IsExpiredErr(err) {
+    if err.IsExpired() {
 		newToken := loginSdk.Refresh("Sdsds")
 	}
 }
