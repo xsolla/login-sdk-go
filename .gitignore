@@ -19,6 +19,8 @@
 /vendor/
 /Godeps/
 
+/node_modules
+
 ### IDE ###
 .idea
 
