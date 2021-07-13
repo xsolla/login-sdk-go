@@ -18,7 +18,7 @@ func (k ProjectPublicKey) CreateRSAPublicKey() *rsa.PublicKey {
 	modulusBigInt, mOk := new(big.Int).SetString(k.Modulus, 16)
 	exponentBigInt, eOk := new(big.Int).SetString(k.Exponent, 16)
 
-	if mOk == false || eOk == false {
+	if !mOk || !eOk {
 		return &rsa.PublicKey{}
 	}
 

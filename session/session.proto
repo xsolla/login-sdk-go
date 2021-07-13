@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "gitlab.loc/sdk-login/login-sdk-go";
+
+package session;
+
+message Request {
+  string jti = 1;
+}
+
+message Response {
+  bool invalidated = 1;
+}
+
+service InvalidationService {
+  rpc HaveBeenInvalidated(Request) returns (Response) {}
+}
