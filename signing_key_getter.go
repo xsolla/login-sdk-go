@@ -28,7 +28,7 @@ func (hs HS256SigningKeyGetter) getKey(interface{}) (interface{}, error) {
 
 func (rs RS256SigningKeyGetter) getKey(token interface{}) (interface{}, error) {
 	jwtToken, ok := token.(*jwt.Token)
-	if ok == false {
+	if !ok {
 		return nil, errors.New("type assertion error")
 	}
 

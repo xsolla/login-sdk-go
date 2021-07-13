@@ -24,7 +24,10 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 		}
 
 		rw.Header().Set("Content-Type", "application/json")
-		rw.Write(js)
+		_, err = rw.Write(js)
+		if err != nil {
+			return
+		}
 	}))
 	defer server.Close()
 
@@ -52,7 +55,10 @@ func TestHttpLoginApi_RefreshToken(t *testing.T) {
 		}
 
 		rw.Header().Set("Content-Type", "application/json")
-		rw.Write(js)
+		_, err = rw.Write(js)
+		if err != nil {
+			return
+		}
 	}))
 	defer server.Close()
 
