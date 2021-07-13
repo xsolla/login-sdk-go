@@ -31,7 +31,5 @@ func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(projectId str
 	res, err := c.client.GetProjectKeysForLoginProject(projectId)
 	c.cache.Set(projectId, res)
 
-	cached, found = c.cache.Get(projectId)
-
 	return res, err
 }
