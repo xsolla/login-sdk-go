@@ -3,6 +3,7 @@ image: golang:latest
 
 variables:
   REPO_NAME: gitlab.loc/sdk-login/login-sdk-go
+  GIT_SSL_NO_VERIFY: "true"
 
 # The problem is that to be able to use go get, one needs to put
 # the repository in the $GOPATH. So for example if your gitlab model
@@ -36,15 +37,24 @@ compile:
       - mybinary
 
 release:
+  image: node:12-buster-slim
   stage: release
-  image:
-    name: registry.gitlab.com/go-semantic-release/semantic-release:latest
-    entrypoint: [""]
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-  script:
-    - semantic-release --provider gitlab --version-file
-  artifacts:
+  cache:
+    key:
+      files:
+        - package-lock.json
     paths:
-      - .version
+      - node_modules/
+  variables:
+    GITLAB_TOKEN: $GITLAB_TOKEN
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
+  script:
+    - npm ci && npm run semantic-release
+  only:
+    refs:
+      - master
+      - beta
+      - alpha
+    variables:
+      - $CI_COMMIT_MESSAGE !~ /skip release/
