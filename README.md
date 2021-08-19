@@ -44,3 +44,23 @@ Cache               - Интерфейс для работы с кэшом (оп
 ```
 
 Пример использования см в "/example/main.go"
+
+### Possible Issues
+
+You can face with error like below:
+```
+go get -u "gitlab.loc/sdk-login/login-sdk-go"
+go: downloading gitlab.loc/sdk-login/login-sdk-go v0.1.1
+go get: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: verifying module: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: reading https://sum.golang.org/lookup/gitlab.loc/sdk-login/login-sdk-go@v0.1.1: 410 Gone server response: not found: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: unrecognized import path "gitlab.loc/sdk-login/login-sdk-go": https fetch: Get "https://gitlab.loc/sdk-login/login-sdk-go?go-get=1": dial tcp: lookup gitlab.loc on 8.8.8.8:53: no such host 
+```
+
+RootCause: U try download from private repository
+
+For resolve that issue just set GOPRIVATE as show below:
+```
+go env -w GOPRIVATE=gitlab.loc/sdk-login/login-sdk-go
+```
+And test that
+```
+go get -u "gitlab.loc/sdk-login/login-sdk-go"
+```
