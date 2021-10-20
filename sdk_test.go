@@ -1,6 +1,7 @@
 package login_sdk_go
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/require"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 	"testing"
@@ -9,7 +10,7 @@ import (
 func TestValidateMalformedToken(t *testing.T) {
 	token := ""
 	loginSgk, _ := New(Config{})
-	err := loginSgk.Validate(token)
+	_, err := loginSgk.Validate(token)
 
 	require.False(t, err.Valid())
 }
@@ -19,13 +20,26 @@ func TestValidateHmacToken(t *testing.T) {
 	loginSgk, _ := New(Config{
 		ShaSecretKey: "your-256-bit-secret",
 	})
-	err := loginSgk.Validate(token)
+	parsedToken, err := loginSgk.Validate(token)
 
+	require.IsType(t, &jwt.Token{}, parsedToken)
+	require.True(t, parsedToken.Valid)
 	require.True(t, err.Valid())
 
 	if !err.Valid() {
 		t.Fatal(err)
 	}
+}
+
+func TestValidateValidHmacTokenWithLoginApi(t *testing.T) {
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ4c29sbGFfbG9naW5fcHJvamVjdF9pZCI6IjEyMyIsImp0aSI6InRlc3QtanRpIn0.Y8NT2mX8q7MshRGUElQMWEhoLa8hnS2rZ3BL5XgtcVo"
+	loginSgk, _ := New(Config{
+		IsMultipleProjectsMode: true,
+	})
+	parsedToken, err := loginSgk.Validate(token)
+
+	require.IsType(t, &jwt.Token{}, parsedToken)
+	require.False(t, err.Valid())
 }
 
 func TestValidateExpiredRsaToken(t *testing.T) {
@@ -34,7 +48,7 @@ func TestValidateExpiredRsaToken(t *testing.T) {
 		LoginProjectId:  "40db2ea4-5d42-11e6-a3ff-005056a0e04a",
 		IgnoreSslErrors: true,
 	})
-	err := loginSgk.Validate(token)
+	_, err := loginSgk.Validate(token)
 
 	require.False(t, err.Valid())
 	require.True(t, err.IsExpired())

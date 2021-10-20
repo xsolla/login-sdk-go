@@ -68,3 +68,18 @@ func TestHttpLoginApi_RefreshToken(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expected, body)
 }
+
+func TestHttpLoginApi_ValidateHS256Token(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, req.URL.String(), "/api/token/validate")
+
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	api := HttpLoginApi{server.Client(), server.URL}
+	err := api.ValidateHS256Token("some_token")
+
+	assert.NoError(t, err)
+}

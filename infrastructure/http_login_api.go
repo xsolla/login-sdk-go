@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
@@ -79,4 +80,30 @@ func (api HttpLoginApi) RefreshToken(refreshToken string, clientId int, clientSe
 	}
 
 	return &loginToken, nil
+}
+
+func (api HttpLoginApi) ValidateHS256Token(token string) error {
+	endpoint := api.baseUrl + "/api/token/validate"
+
+	values := map[string]string{"token": token}
+	data, _ := json.Marshal(values)
+
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return errors.New("http request error: " + err.Error())
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := api.Client.Do(req)
+	if err != nil {
+		return errors.New("http request error: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 204 {
+		return errors.New("http request error: " + res.Status)
+	}
+
+	return nil
 }

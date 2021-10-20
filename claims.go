@@ -10,15 +10,16 @@ type TokenString string
 type CustomClaims struct {
 	ProjectId string   `json:"xsolla_login_project_id,omitempty"`
 	Audience  []string `json:"aud,omitempty"`
+	Type      string   `json:"type:omitempty"`
 	jwt.StandardClaims
 }
 
 func (c CustomClaims) Valid() error {
 	vErr := new(jwt.ValidationError)
 
-	if c.Id == "" {
+	if c.Id == "" && c.Type == "oauth" {
 		vErr.Inner = fmt.Errorf("jti claim is required")
-		vErr.Errors |= jwt.ValidationErrorIssuedAt
+		vErr.Errors |= jwt.ValidationErrorId
 	}
 
 	if c.ProjectId == "" {

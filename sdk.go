@@ -1,6 +1,7 @@
 package login_sdk_go
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"time"
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
@@ -13,23 +14,24 @@ const (
 )
 
 type Config struct {
-	IgnoreSslErrors       bool
-	ShaSecretKey          string
-	LoginApiUrl           string
-	LoginProjectId        string
-	LoginClientId         int
-	LoginClientSecret     string
-	SessionApiHost        string
-	SessionApiPort        int
-	SkipSessionValidation bool
-	Cache                 cache.ValidationKeysCache
+	IgnoreSslErrors        bool
+	ShaSecretKey           string
+	LoginApiUrl            string
+	LoginProjectId         string
+	LoginClientId          int
+	LoginClientSecret      string
+	SessionApiHost         string
+	SessionApiPort         int
+	SkipSessionValidation  bool
+	IsMultipleProjectsMode bool
+	Cache                  cache.ValidationKeysCache
 }
 
 type ConfigOption func(*Config)
 
 type LoginSdk struct {
 	config    Config
-	validator Validator
+	validator ValidatorWithParser
 	refresher Refresher
 }
 
@@ -63,9 +65,9 @@ func (c *Config) fillDefaults() {
 	}
 }
 
-func (sdk *LoginSdk) Validate(tokenString string) *WrappedError {
-	err := sdk.validator.Validate(tokenString)
-	return WrapError(err)
+func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
+	parsedToken, err := sdk.validator.Validate(tokenString)
+	return parsedToken, WrapError(err)
 }
 
 func (sdk LoginSdk) Refresh(refreshToken string) (*model.LoginToken, error) {
