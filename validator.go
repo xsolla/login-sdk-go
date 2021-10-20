@@ -15,6 +15,14 @@ type Validator interface {
 	Validate(jwt string) error
 }
 
+type ValidatorWithParser interface {
+	Validate(jwt string) (*jwt.Token, error)
+}
+
+type HS256LoginApiValidator struct {
+	loginApi *interfaces.LoginApi
+}
+
 type SessionValidator struct {
 	invalidationServiceClient session.InvalidationServiceClient
 }
@@ -33,15 +41,17 @@ func NewSessionValidator(host string, port int) (*SessionValidator, error) {
 
 type MasterValidator struct {
 	Config
-	rs256SigningKey  SigningKeyGetter
-	hs256SigningKey  SigningKeyGetter
-	sessionValidator *SessionValidator
+	rs256SigningKey        SigningKeyGetter
+	hs256SigningKey        SigningKeyGetter
+	sessionValidator       *SessionValidator
+	hs256LoginApiValidator Validator
 }
 
 func NewMasterValidator(config Config, client *interfaces.LoginApi) (*MasterValidator, error) {
 	cks := NewCachedValidationKeysStorage(*client, config.Cache)
 	rsa := RSAPublicKeyGetter{storage: cks, projectId: config.LoginProjectId}
 
+	hs256LoginApiValidator := &HS256LoginApiValidator{client}
 	sessionValidator, err := NewSessionValidator(config.SessionApiHost, config.SessionApiPort)
 
 	if err != nil {
@@ -49,14 +59,15 @@ func NewMasterValidator(config Config, client *interfaces.LoginApi) (*MasterVali
 	}
 
 	return &MasterValidator{
-		Config:           config,
-		rs256SigningKey:  RS256SigningKeyGetter{config, rsa},
-		hs256SigningKey:  HS256SigningKeyGetter{config.ShaSecretKey},
-		sessionValidator: sessionValidator,
+		Config:                 config,
+		rs256SigningKey:        RS256SigningKeyGetter{config, rsa},
+		hs256SigningKey:        HS256SigningKeyGetter{config.ShaSecretKey},
+		hs256LoginApiValidator: hs256LoginApiValidator,
+		sessionValidator:       sessionValidator,
 	}, nil
 }
 
-func (mv MasterValidator) Validate(tokenString string) error {
+func (mv MasterValidator) Validate(tokenString string) (*jwt.Token, error) {
 	parsedToken, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		signingMethod := token.Method
 		switch signingMethod {
@@ -69,11 +80,23 @@ func (mv MasterValidator) Validate(tokenString string) error {
 		}
 	})
 
-	if err == nil && !mv.Config.SkipSessionValidation && mv.sessionValidator != nil {
-		return mv.sessionValidator.Validate(parsedToken)
+	if mv.Config.IsMultipleProjectsMode && parsedToken.Method == jwt.SigningMethodHS256 {
+		if err := parsedToken.Claims.Valid(); err != nil {
+			return parsedToken, err
+		}
+
+		err = mv.hs256LoginApiValidator.Validate(tokenString)
+
+		if err != nil {
+			return parsedToken, err
+		}
 	}
 
-	return err
+	if err == nil && !mv.Config.SkipSessionValidation && mv.sessionValidator != nil {
+		return parsedToken, mv.sessionValidator.Validate(parsedToken)
+	}
+
+	return parsedToken, err
 }
 
 func (s SessionValidator) Validate(token *jwt.Token) error {
@@ -100,4 +123,9 @@ func (s SessionValidator) Validate(token *jwt.Token) error {
 	}
 
 	return nil
+}
+
+func (hs HS256LoginApiValidator) Validate(token string) error {
+	l := *hs.loginApi
+	return l.ValidateHS256Token(token)
 }
