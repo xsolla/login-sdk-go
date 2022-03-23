@@ -37,7 +37,7 @@ compile:
       - mybinary
 
 release:
-  image: node:12-buster-slim
+  image: node:14-buster-slim
   stage: release
   cache:
     key:
