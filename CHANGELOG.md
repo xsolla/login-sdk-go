@@ -1,3 +1,10 @@
+## [0.2.3](https://gitlab.loc/sdk-login/login-sdk-go/compare/v0.2.2...0.2.3) (2022-03-23)
+
+
+### Bug Fixes
+
+* **ci:** update nodejs image for release ([70d575a](https://gitlab.loc/sdk-login/login-sdk-go/commit/70d575a2d3a45557f5978d1531d7894e3da819d1))
+
 ## [0.2.1](https://gitlab.loc/sdk-login/login-sdk-go/compare/0.2.0...0.2.1) (2021-08-17)
 
 
