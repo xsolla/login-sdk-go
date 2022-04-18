@@ -29,7 +29,9 @@ func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(projectId str
 	}
 
 	res, err := c.client.GetProjectKeysForLoginProject(projectId)
-	c.cache.Set(projectId, res)
+	if err == nil {
+		c.cache.Set(projectId, res)
+	}
 
 	return res, err
 }
