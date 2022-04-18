@@ -6,25 +6,18 @@ import (
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
 	"gitlab.loc/sdk-login/login-sdk-go/infrastructure"
-	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 const (
 	defaultLoginApiUrl = "https://login.xsolla.com"
+	keyTTL             = 10 * time.Minute
 )
 
 type Config struct {
-	IgnoreSslErrors        bool
-	ShaSecretKey           string
-	LoginApiUrl            string
-	LoginProjectId         string
-	LoginClientId          int
-	LoginClientSecret      string
-	SessionApiHost         string
-	SessionApiPort         int
-	SkipSessionValidation  bool
-	IsMultipleProjectsMode bool
-	Cache                  cache.ValidationKeysCache
+	IgnoreSslErrors bool
+	ShaSecretKey    string
+	LoginApiUrl     string
+	Cache           cache.ValidationKeysCache
 }
 
 type ConfigOption func(*Config)
@@ -32,7 +25,6 @@ type ConfigOption func(*Config)
 type LoginSdk struct {
 	config    Config
 	validator ValidatorWithParser
-	refresher Refresher
 }
 
 func New(config Config) (*LoginSdk, error) {
@@ -49,7 +41,6 @@ func New(config Config) (*LoginSdk, error) {
 	l := &LoginSdk{
 		config:    config,
 		validator: mv,
-		refresher: NewTokenRefresher(&loginApi, config.LoginClientId, config.LoginClientSecret),
 	}
 
 	return l, nil
@@ -61,15 +52,11 @@ func (c *Config) fillDefaults() {
 	}
 
 	if c.Cache == nil {
-		c.Cache = cache.NewDefaultCache(1 * time.Hour)
+		c.Cache = cache.NewDefaultCache(keyTTL)
 	}
 }
 
 func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
 	parsedToken, err := sdk.validator.Validate(tokenString)
 	return parsedToken, WrapError(err)
-}
-
-func (sdk LoginSdk) Refresh(refreshToken string) (*model.LoginToken, error) {
-	return sdk.refresher.Refresh(refreshToken)
 }
