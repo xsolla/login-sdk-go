@@ -6,7 +6,7 @@ import (
 )
 
 type ProjectKeysGetter interface {
-	GetProjectKeysForLoginProject(projectId string) ([]model.ProjectPublicKey, error)
+	GetProjectKeysForLoginProject(projectID string) ([]model.ProjectPublicKey, error)
 }
 
 type cachedValidationKeysStorage struct {
@@ -21,16 +21,16 @@ func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache cache.Valida
 	}
 }
 
-func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(projectId string) ([]model.ProjectPublicKey, error) {
-	cached, found := c.cache.Get(projectId)
+func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(projectID string) ([]model.ProjectPublicKey, error) {
+	cached, found := c.cache.Get(projectID)
 
 	if found {
 		return cached.([]model.ProjectPublicKey), nil
 	}
 
-	res, err := c.client.GetProjectKeysForLoginProject(projectId)
+	res, err := c.client.GetProjectKeysForLoginProject(projectID)
 	if err == nil {
-		c.cache.Set(projectId, res)
+		c.cache.Set(projectID, res)
 	}
 
 	return res, err

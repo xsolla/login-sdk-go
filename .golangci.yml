@@ -1,0 +1,40 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+  tests: false
+
+
+linters-settings:
+  testpackage:
+    # regexp pattern to skip files
+    skip-regexp: (export|internal)_test\.go
+
+linters:
+  enable:
+  enable-all: true
+  disable:
+    - interfacer # deprecated
+    - golint # deprecated
+    - maligned # deprecated
+    - scopelint # deprecated
+    - wsl # strange behavior
+    - paralleltest # strange behavior
+    - exhaustivestruct # strange behavior
+    - tagliatelle # strange behavior
+    - ifshort # strange behavior
+    - dogsled # strange behavior
+    - wrapcheck # strange behavior
+    - exhaustive # strange behavior
+    - errorlint # strange behavior
+    - gci # strange behavior
+    - revive
+    - gochecknoglobals
+
+  disable-all: false
+  presets:
+  fast: false
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

@@ -1,13 +1,14 @@
 package cache
 
 import (
-	"github.com/patrickmn/go-cache"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 )
 
 type ValidationKeysCache interface {
-	Get(projectId string) (interface{}, bool)
-	Set(projectId string, keys interface{})
+	Get(projectID string) (interface{}, bool)
+	Set(projectID string, keys interface{})
 }
 
 type DefaultValidationKeysCache struct {
@@ -20,10 +21,10 @@ func NewDefaultCache(expirationTime time.Duration) DefaultValidationKeysCache {
 	}
 }
 
-func (dc DefaultValidationKeysCache) Get(projectId string) (interface{}, bool) {
-	return dc.cache.Get(projectId)
+func (dc DefaultValidationKeysCache) Get(projectID string) (interface{}, bool) {
+	return dc.cache.Get(projectID)
 }
 
-func (dc DefaultValidationKeysCache) Set(projectId string, keys interface{}) {
-	dc.cache.Set(projectId, keys, cache.DefaultExpiration)
+func (dc DefaultValidationKeysCache) Set(projectID string, keys interface{}) {
+	dc.cache.Set(projectID, keys, cache.DefaultExpiration)
 }

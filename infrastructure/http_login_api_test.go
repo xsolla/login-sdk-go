@@ -2,10 +2,11 @@ package infrastructure
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )

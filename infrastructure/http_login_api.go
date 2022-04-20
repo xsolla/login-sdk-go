@@ -18,22 +18,22 @@ const (
 	ValidateTokenAPIPATH = "/api/token/validate"
 )
 
-type HttpLoginApi struct {
+type HTTPLoginAPI struct {
 	Client  *http.Client
-	baseUrl string
+	baseURL string
 }
 
-func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) interfaces.LoginApi {
+func NewHttpLoginAPI(baseUrl string, ignoreSslErrors bool) interfaces.LoginAPI {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
 	}
-	return HttpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
+
+	return HTTPLoginAPI{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
 }
 
-func (api HttpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]model.ProjectPublicKey, error) {
-	endpoint := api.baseUrl + "/api/projects/" + projectID + "/keys"
+func (api HTTPLoginAPI) GetProjectKeysForLoginProject(projectID string) ([]model.ProjectPublicKey, error) {
+	endpoint := api.baseURL + "/api/projects/" + projectID + "/keys"
 	res, err := api.Client.Get(endpoint)
-
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +48,8 @@ func (api HttpLoginApi) GetProjectKeysForLoginProject(projectID string) ([]model
 	return keysResp, nil
 }
 
-func (api HttpLoginApi) ValidateHS256Token(token string) error {
-	endpoint := api.baseUrl + ValidateTokenAPIPATH
+func (api HTTPLoginAPI) ValidateHS256Token(token string) error {
+	endpoint := api.baseURL + ValidateTokenAPIPATH
 
 	values := map[string]string{"token": token}
 	data, err := json.Marshal(values)

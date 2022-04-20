@@ -2,6 +2,7 @@ package login_sdk_go
 
 import (
 	"errors"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -39,12 +40,14 @@ func (rs RS256SigningKeyGetter) getKey(token interface{}) (interface{}, error) {
 		if !ok {
 			return nil, errors.New("failed receive claims for token")
 		}
-		rs.rsaPublicKeyGetter.projectId = claims.ProjectId
+		rs.rsaPublicKeyGetter.projectID = claims.ProjectID
 		key, err := rs.rsaPublicKeyGetter.getPublicKey(kid)
 		if err != nil {
 			return nil, err
 		}
+
 		return key, nil
 	}
+
 	return nil, errors.New("token doesn't have kid header")
 }

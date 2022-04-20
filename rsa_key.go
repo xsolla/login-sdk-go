@@ -6,13 +6,12 @@ import (
 )
 
 type RSAPublicKeyGetter struct {
-	projectId string
+	projectID string
 	storage   ProjectKeysGetter
 }
 
 func (rsa RSAPublicKeyGetter) getPublicKey(kid string) (*rsa.PublicKey, error) {
-	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(rsa.projectId)
-
+	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(rsa.projectID)
 	if err != nil {
 		return nil, err
 	}

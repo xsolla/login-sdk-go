@@ -3,10 +3,12 @@ package login_sdk_go
 import (
 	"crypto/rsa"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"gitlab.loc/sdk-login/login-sdk-go/model"
 	"math/big"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 type testKeysStorage struct {

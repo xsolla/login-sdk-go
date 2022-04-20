@@ -2,7 +2,9 @@ package login_sdk_go
 
 import (
 	"errors"
+
 	"github.com/dgrijalva/jwt-go"
+
 	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
 )
 
@@ -14,28 +16,28 @@ type ValidatorWithParser interface {
 	Validate(jwt string) (*jwt.Token, error)
 }
 
-type HS256LoginApiValidator struct {
-	loginApi *interfaces.LoginApi
+type HS256LoginAPIValidator struct {
+	loginAPI *interfaces.LoginAPI
 }
 
 type MasterValidator struct {
 	Config
 	rs256SigningKey        SigningKeyGetter
 	hs256SigningKey        SigningKeyGetter
-	hs256LoginApiValidator Validator
+	hs256LoginAPIValidator Validator
 }
 
-func NewMasterValidator(config Config, client *interfaces.LoginApi) (*MasterValidator, error) {
+func NewMasterValidator(config Config, client *interfaces.LoginAPI) (*MasterValidator, error) {
 	cks := NewCachedValidationKeysStorage(*client, config.Cache)
 	rsa := RSAPublicKeyGetter{storage: cks}
 
-	hs256LoginApiValidator := &HS256LoginApiValidator{client}
+	hs256LoginAPIValidator := &HS256LoginAPIValidator{client}
 
 	return &MasterValidator{
 		Config:                 config,
 		rs256SigningKey:        RS256SigningKeyGetter{config, rsa},
 		hs256SigningKey:        HS256SigningKeyGetter{config.ShaSecretKey},
-		hs256LoginApiValidator: hs256LoginApiValidator,
+		hs256LoginAPIValidator: hs256LoginAPIValidator,
 	}, nil
 }
 
@@ -51,7 +53,6 @@ func (mv MasterValidator) Validate(tokenString string) (*jwt.Token, error) {
 			return nil, errors.New(signingMethod.Alg() + " algorithm is not supported")
 		}
 	})
-
 	if err != nil {
 		// Если секрета нет, валидируем через апишку
 		// и вернем ошибку, если токен не валиден
@@ -60,7 +61,7 @@ func (mv MasterValidator) Validate(tokenString string) (*jwt.Token, error) {
 			return nil, errors.New("failed parse jwt validation error")
 		}
 		if validationErr.Inner == errSHASecretKeyIsEmpty {
-			err = mv.hs256LoginApiValidator.Validate(tokenString)
+			err = mv.hs256LoginAPIValidator.Validate(tokenString)
 			if err != nil {
 				return nil, err
 			}
@@ -68,8 +69,10 @@ func (mv MasterValidator) Validate(tokenString string) (*jwt.Token, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			return parsedToken, nil
 		}
+
 		return nil, err
 	}
 	// подпись валидная, проверяем только истек токен или нет
@@ -79,10 +82,10 @@ func (mv MasterValidator) Validate(tokenString string) (*jwt.Token, error) {
 	} else {
 		return parsedToken, nil
 	}
-
 }
 
-func (hs HS256LoginApiValidator) Validate(token string) error {
-	l := *hs.loginApi
+func (hs HS256LoginAPIValidator) Validate(token string) error {
+	l := *hs.loginAPI
+
 	return l.ValidateHS256Token(token)
 }
