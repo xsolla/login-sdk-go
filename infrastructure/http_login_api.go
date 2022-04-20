@@ -29,10 +29,10 @@ func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) interfaces.LoginApi {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
 	}
-	return HttpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
+	return &HttpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
 }
 
-func (api HttpLoginApi) makeRequest(ctx context.Context, method string, url string, body []byte) (*http.Response, error) {
+func (api *HttpLoginApi) makeRequest(ctx context.Context, method string, url string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed create request: %w", err)
@@ -47,8 +47,8 @@ func (api HttpLoginApi) makeRequest(ctx context.Context, method string, url stri
 	return response, nil
 }
 
-func (api HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
-	response, err := api.makeRequest(ctx, "GET", fmt.Sprintf("%s%s%s%s", api.baseUrl, ProjectsPath, projectID, "/keys"), nil)
+func (api *HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
+	response, err := api.makeRequest(ctx, http.MethodGet, fmt.Sprintf("%s%s%s/keys", api.baseUrl, ProjectsPath, projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -68,20 +68,20 @@ func (api HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, proje
 	return keysResp, nil
 }
 
-func (api HttpLoginApi) ValidateHS256Token(ctx context.Context, token string) error {
+func (api *HttpLoginApi) ValidateHS256Token(ctx context.Context, token string) error {
 	values := map[string]string{"token": token}
 	data, err := json.Marshal(values)
 	if err != nil {
 		return fmt.Errorf("failed marshal data %w", err)
 	}
 
-	response, err := api.makeRequest(ctx, "POST", fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
+	response, err := api.makeRequest(ctx, http.MethodPost, fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode != 204 {
+	if response.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("http request error: %d", response.StatusCode)
 	}
 
