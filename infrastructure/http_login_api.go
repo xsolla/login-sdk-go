@@ -43,7 +43,6 @@ func (api HttpLoginApi) makeRequest(ctx context.Context, method string, url stri
 	if err != nil {
 		return nil, fmt.Errorf("failed make request: %w", err)
 	}
-	defer response.Body.Close()
 
 	return response, nil
 }
@@ -53,6 +52,7 @@ func (api HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, proje
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 
 	respBody, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -79,6 +79,7 @@ func (api HttpLoginApi) ValidateHS256Token(ctx context.Context, token string) er
 	if err != nil {
 		return err
 	}
+	defer response.Body.Close()
 
 	if response.StatusCode != 204 {
 		return fmt.Errorf("http request error: %d", response.StatusCode)
