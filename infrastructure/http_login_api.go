@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
@@ -38,6 +39,8 @@ func (api HttpLoginApi) makeRequest(ctx context.Context, method string, url stri
 	if err != nil {
 		return nil, 500, errors.New("failed create request:" + err.Error())
 	}
+	req.Header.Set("Content-Type", "application/json")
+
 	response, err := api.Client.Do(req)
 	if err != nil {
 		return nil, 500, errors.New("failed make request: " + err.Error())
@@ -75,9 +78,9 @@ func (api HttpLoginApi) ValidateHS256Token(ctx context.Context, token string) er
 		return fmt.Errorf("failed marshal data %w", err)
 	}
 
-	_, statusCode, err := api.makeRequest(ctx, "GET", fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
+	_, statusCode, err := api.makeRequest(ctx, "POST", fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
 	if statusCode != 204 {
-		return err
+		return errors.New("http request error: " + strconv.Itoa(statusCode))
 	}
 
 	return nil
