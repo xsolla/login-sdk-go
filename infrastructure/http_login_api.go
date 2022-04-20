@@ -5,11 +5,9 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"time"
 
 	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
@@ -34,53 +32,56 @@ func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) interfaces.LoginApi {
 	return HttpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
 }
 
-func (api HttpLoginApi) makeRequest(ctx context.Context, method string, url string, body []byte) ([]byte, int, error) {
+func (api HttpLoginApi) makeRequest(ctx context.Context, method string, url string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewBuffer(body))
 	if err != nil {
-		return nil, 500, errors.New("failed create request:" + err.Error())
+		return nil, fmt.Errorf("failed create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	response, err := api.Client.Do(req)
 	if err != nil {
-		return nil, 500, errors.New("failed make request: " + err.Error())
+		return nil, fmt.Errorf("failed make request: %w", err)
 	}
 	defer response.Body.Close()
 
-	respBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, 500, errors.New("failed read response: " + err.Error())
-	}
-
-	return respBody, response.StatusCode, nil
+	return response, nil
 }
 
 func (api HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
-	response, _, err := api.makeRequest(ctx, "GET", fmt.Sprintf("%s%s%s%s", api.baseUrl, ProjectsPath, projectID, "/keys"), nil)
+	response, err := api.makeRequest(ctx, "GET", fmt.Sprintf("%s%s%s%s", api.baseUrl, ProjectsPath, projectID, "/keys"), nil)
 	if err != nil {
 		return nil, err
 	}
 
+	respBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed read response: %w", err)
+	}
+
 	var keysResp []model.ProjectPublicKey
 
-	if err = json.Unmarshal(response, &keysResp); err != nil {
-		return nil, errors.New("failed unmarshal data: " + err.Error())
+	if err = json.Unmarshal(respBody, &keysResp); err != nil {
+		return nil, fmt.Errorf("failed unmarshal data: %w", err)
 	}
 
 	return keysResp, nil
 }
 
 func (api HttpLoginApi) ValidateHS256Token(ctx context.Context, token string) error {
-
 	values := map[string]string{"token": token}
 	data, err := json.Marshal(values)
 	if err != nil {
 		return fmt.Errorf("failed marshal data %w", err)
 	}
 
-	_, statusCode, err := api.makeRequest(ctx, "POST", fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
-	if statusCode != 204 {
-		return errors.New("http request error: " + strconv.Itoa(statusCode))
+	response, err := api.makeRequest(ctx, "POST", fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 204 {
+		return fmt.Errorf("http request error: %d", response.StatusCode)
 	}
 
 	return nil
