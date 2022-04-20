@@ -1,8 +1,10 @@
 package login_sdk_go
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"context"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
 	"gitlab.loc/sdk-login/login-sdk-go/infrastructure"
@@ -56,7 +58,7 @@ func (c *Config) fillDefaults() {
 	}
 }
 
-func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
-	parsedToken, err := sdk.validator.Validate(tokenString)
+func (sdk *LoginSdk) Validate(ctx context.Context, tokenString string) (*jwt.Token, *WrappedError) {
+	parsedToken, err := sdk.validator.Validate(ctx, tokenString)
 	return parsedToken, WrapError(err)
 }
