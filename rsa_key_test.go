@@ -23,19 +23,19 @@ func (s testKeysStorage) GetProjectKeysForLoginProject(ctx context.Context, proj
 
 func TestGetPublicKey(t *testing.T) {
 	t.Run("should return err", func(t *testing.T) {
-		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{}, err: fmt.Errorf("an error occurred")}}
+		pk := RSAPublicKeyGetter{projectID: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{}, err: fmt.Errorf("an error occurred")}}
 		_, err := pk.getPublicKey(context.Background(), "42")
 		assert.Error(t, err)
 	})
 
 	t.Run("should return error if there is no keys for project", func(t *testing.T) {
-		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{}}}
+		pk := RSAPublicKeyGetter{projectID: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{}}}
 		_, err := pk.getPublicKey(context.Background(), "42")
 		assert.Error(t, err)
 	})
 
 	t.Run("should return error if there is no key with proper Kid", func(t *testing.T) {
-		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{{Kid: "12"}}}}
+		pk := RSAPublicKeyGetter{projectID: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{{Kid: "12"}}}}
 		_, err := pk.getPublicKey(context.Background(), "42")
 		assert.Error(t, err)
 	})
@@ -48,7 +48,7 @@ func TestGetPublicKey(t *testing.T) {
 			N: modulusBigInt,
 		}
 
-		pk := RSAPublicKeyGetter{projectId: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{{
+		pk := RSAPublicKeyGetter{projectID: "project-1", storage: testKeysStorage{result: &[]model.ProjectPublicKey{{
 			Alg:      "RS256",
 			Exponent: "10001",
 			Kid:      "42",
