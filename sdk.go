@@ -64,6 +64,5 @@ func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, tokenString string
 }
 
 func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
-	parsedToken, err := sdk.validator.Validate(context.Background(), tokenString)
-	return parsedToken, WrapError(err)
+	return sdk.ValidateWithContext(context.Background(), tokenString)
 }
