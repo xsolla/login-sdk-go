@@ -3,10 +3,16 @@ package login_sdk_go
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
 
 	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
+)
+
+var (
+	ErrFailedParseJWT        = errors.New("failed parse jwt validation error")
+	ErrNotSupportedAlgorithm = errors.New("algorithm is not supported")
 )
 
 type Validator interface {
@@ -18,7 +24,7 @@ type ValidatorWithParser interface {
 }
 
 type HS256LoginAPIValidator struct {
-	loginAPI *interfaces.LoginAPI
+	loginAPI interfaces.LoginAPI
 }
 
 type MasterValidator struct {
@@ -28,8 +34,8 @@ type MasterValidator struct {
 	hs256LoginAPIValidator Validator
 }
 
-func NewMasterValidator(config Config, client *interfaces.LoginAPI) (*MasterValidator, error) {
-	cks := NewCachedValidationKeysStorage(*client, config.Cache)
+func NewMasterValidator(config Config, client interfaces.LoginAPI) (*MasterValidator, error) {
+	cks := NewCachedValidationKeysStorage(client, config.Cache)
 	rsa := RSAPublicKeyGetter{storage: cks}
 
 	hs256LoginAPIValidator := &HS256LoginAPIValidator{client}
@@ -51,7 +57,7 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 		case jwt.SigningMethodHS256:
 			return mv.hs256SigningKey.getKey(ctx, token)
 		default:
-			return nil, errors.New(signingMethod.Alg() + " algorithm is not supported")
+			return nil, fmt.Errorf("%w:%s", ErrNotSupportedAlgorithm, signingMethod.Alg())
 		}
 	})
 	if err != nil {
@@ -59,9 +65,9 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 		// return an error if token is invalid
 		validationErr, ok := err.(*jwt.ValidationError)
 		if !ok {
-			return nil, errors.New("failed parse jwt validation error")
+			return nil, ErrFailedParseJWT
 		}
-		if validationErr.Inner == errSHASecretKeyIsEmpty {
+		if errors.Is(validationErr.Inner, errSHASecretKeyIsEmpty) {
 			err = mv.hs256LoginAPIValidator.Validate(ctx, tokenString)
 			if err != nil {
 				return nil, err
@@ -86,7 +92,7 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 }
 
 func (hs HS256LoginAPIValidator) Validate(ctx context.Context, token string) error {
-	l := *hs.loginAPI
+	l := hs.loginAPI
 
 	return l.ValidateHS256Token(ctx, token)
 }

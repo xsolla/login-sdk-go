@@ -16,14 +16,14 @@ type cachedValidationKeysStorage struct {
 	cache  cache.ValidationKeysCache
 }
 
-func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache cache.ValidationKeysCache) ProjectKeysGetter {
+func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache cache.ValidationKeysCache) cachedValidationKeysStorage {
 	return cachedValidationKeysStorage{
 		client: client,
 		cache:  cache,
 	}
 }
 
-func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(ctx context.Context,projectID string) ([]model.ProjectPublicKey, error) {
+func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
 	cached, found := c.cache.Get(projectID)
 
 	if found {

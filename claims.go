@@ -1,12 +1,17 @@
 package login_sdk_go
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
 type TokenString string
+
+var (
+	ErrJTIClaimIsRequired    = errors.New("jti claim is required")
+	ErrXsollaClaimIsRequired = errors.New("xsolla_login_project_id claim is required")
+)
 
 type CustomClaims struct {
 	ProjectID string   `json:"xsolla_login_project_id,omitempty"`
@@ -19,12 +24,12 @@ func (c CustomClaims) Valid() error {
 	vErr := new(jwt.ValidationError)
 
 	if c.Id == "" && c.Type == "oauth" {
-		vErr.Inner = fmt.Errorf("jti claim is required")
+		vErr.Inner = ErrJTIClaimIsRequired
 		vErr.Errors |= jwt.ValidationErrorId
 	}
 
 	if c.ProjectID == "" {
-		vErr.Inner = fmt.Errorf("xsolla_login_project_id claim is required")
+		vErr.Inner = ErrXsollaClaimIsRequired
 		vErr.Errors |= jwt.ValidationErrorClaimsInvalid
 	}
 

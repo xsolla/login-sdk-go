@@ -6,8 +6,31 @@ run:
 
 linters-settings:
 
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 250
+    # tab width in spaces. Default to 1.
+    tab-width: 1
+
+  nestif:
+    # minimal complexity of if statements to report, 5 by default
+    min-complexity: 4
+
+  errorlint:
+    # Report non-wrapping error creation using fmt.Errorf
+    errorf: true
+
+  errcheck:
+    exclude-functions:
+      - (*database/sql.Rows).Close
+      - (*database/sql.Tx).Rollback
+      - (*go.uber.org/zap.Logger).Sync
+      - (io.Closer).Close
+
   stylecheck:
     checks: ["all", "-ST1000", "-ST1003"]
+
   testpackage:
     # regexp pattern to skip files
     skip-regexp: (export|internal)_test\.go

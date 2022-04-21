@@ -7,6 +7,12 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+var (
+	ErrReceiveTokenClaims = errors.New("failed receive claims for token")
+	ErrNoKidHeader        = errors.New("token doesn't have kid header")
+	ErrTypeAssertion      = errors.New("type assertion error")
+)
+
 var errSHASecretKeyIsEmpty = errors.New("sha secret key is empty")
 
 type SigningKeyGetter interface {
@@ -33,13 +39,13 @@ func (hs HS256SigningKeyGetter) getKey(context.Context, interface{}) (interface{
 func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (interface{}, error) {
 	jwtToken, ok := token.(*jwt.Token)
 	if !ok {
-		return nil, errors.New("type assertion error")
+		return nil, ErrTypeAssertion
 	}
 
 	if kid, ok := jwtToken.Header["kid"].(string); ok {
 		claims, ok := jwtToken.Claims.(*CustomClaims)
 		if !ok {
-			return nil, errors.New("failed receive claims for token")
+			return nil, ErrReceiveTokenClaims
 		}
 		rs.rsaPublicKeyGetter.projectID = claims.ProjectID
 		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid)
@@ -50,5 +56,5 @@ func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (
 		return key, nil
 	}
 
-	return nil, errors.New("token doesn't have kid header")
+	return nil, ErrNoKidHeader
 }

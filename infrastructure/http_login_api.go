@@ -5,12 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
@@ -20,12 +20,14 @@ const (
 	ProjectsPath         = "/api/projects/"
 )
 
+var ErrWrongStatusCode = errors.New("wrong status code")
+
 type HTTPLoginAPI struct {
 	Client  *http.Client
 	baseURL string
 }
 
-func NewHttpLoginAPI(baseUrl string, ignoreSslErrors bool) interfaces.LoginAPI {
+func NewHttpLoginAPI(baseUrl string, ignoreSslErrors bool) *HTTPLoginAPI {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
 	}
@@ -83,7 +85,7 @@ func (api *HTTPLoginAPI) ValidateHS256Token(ctx context.Context, token string) e
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("http request error: %d", response.StatusCode)
+		return fmt.Errorf("%w:%d", ErrWrongStatusCode, response.StatusCode)
 	}
 
 	return nil

@@ -34,7 +34,7 @@ func New(config Config) (*LoginSdk, error) {
 
 	loginAPI := infrastructure.NewHttpLoginAPI(config.LoginAPIURL, config.IgnoreSslErrors)
 
-	validator, err := NewMasterValidator(config, &loginAPI)
+	validator, err := NewMasterValidator(config, loginAPI)
 	if err != nil {
 		return nil, err
 	}
@@ -59,5 +59,6 @@ func (c *Config) fillDefaults() {
 
 func (sdk *LoginSdk) Validate(ctx context.Context, tokenString string) (*jwt.Token, *WrappedError) {
 	parsedToken, err := sdk.validator.Validate(ctx, tokenString)
+
 	return parsedToken, WrapError(err)
 }
