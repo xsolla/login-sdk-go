@@ -58,7 +58,12 @@ func (c *Config) fillDefaults() {
 	}
 }
 
-func (sdk *LoginSdk) Validate(ctx context.Context, tokenString string) (*jwt.Token, *WrappedError) {
+func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, tokenString string) (*jwt.Token, *WrappedError) {
 	parsedToken, err := sdk.validator.Validate(ctx, tokenString)
+	return parsedToken, WrapError(err)
+}
+
+func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
+	parsedToken, err := sdk.validator.Validate(context.Background(), tokenString)
 	return parsedToken, WrapError(err)
 }
