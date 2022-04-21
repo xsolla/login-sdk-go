@@ -1,6 +1,7 @@
 package login_sdk_go
 
 import (
+	"context"
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"
@@ -9,7 +10,7 @@ import (
 var errSHASecretKeyIsEmpty = errors.New("sha secret key is empty")
 
 type SigningKeyGetter interface {
-	getKey(token interface{}) (interface{}, error)
+	getKey(ctx context.Context, token interface{}) (interface{}, error)
 }
 
 type HS256SigningKeyGetter struct {
@@ -21,7 +22,7 @@ type RS256SigningKeyGetter struct {
 	rsaPublicKeyGetter RSAPublicKeyGetter
 }
 
-func (hs HS256SigningKeyGetter) getKey(interface{}) (interface{}, error) {
+func (hs HS256SigningKeyGetter) getKey(context.Context, interface{}) (interface{}, error) {
 	if hs.key == "" {
 		return nil, errSHASecretKeyIsEmpty
 	}
@@ -29,7 +30,7 @@ func (hs HS256SigningKeyGetter) getKey(interface{}) (interface{}, error) {
 	return []byte(hs.key), nil
 }
 
-func (rs RS256SigningKeyGetter) getKey(token interface{}) (interface{}, error) {
+func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (interface{}, error) {
 	jwtToken, ok := token.(*jwt.Token)
 	if !ok {
 		return nil, errors.New("type assertion error")
@@ -41,7 +42,7 @@ func (rs RS256SigningKeyGetter) getKey(token interface{}) (interface{}, error) {
 			return nil, errors.New("failed receive claims for token")
 		}
 		rs.rsaPublicKeyGetter.projectID = claims.ProjectID
-		key, err := rs.rsaPublicKeyGetter.getPublicKey(kid)
+		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid)
 		if err != nil {
 			return nil, err
 		}

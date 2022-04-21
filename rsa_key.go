@@ -1,6 +1,7 @@
 package login_sdk_go
 
 import (
+	"context"
 	"crypto/rsa"
 	"errors"
 )
@@ -10,8 +11,9 @@ type RSAPublicKeyGetter struct {
 	storage   ProjectKeysGetter
 }
 
-func (rsa RSAPublicKeyGetter) getPublicKey(kid string) (*rsa.PublicKey, error) {
-	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(rsa.projectID)
+func (rsa RSAPublicKeyGetter) getPublicKey(ctx context.Context, kid string) (*rsa.PublicKey, error) {
+	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(ctx, rsa.projectID)
+
 	if err != nil {
 		return nil, err
 	}

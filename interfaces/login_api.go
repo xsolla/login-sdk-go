@@ -1,8 +1,12 @@
 package interfaces
 
-import "gitlab.loc/sdk-login/login-sdk-go/model"
+import (
+	"context"
+
+	"gitlab.loc/sdk-login/login-sdk-go/model"
+)
 
 type LoginAPI interface {
-	GetProjectKeysForLoginProject(projectID string) ([]model.ProjectPublicKey, error)
-	ValidateHS256Token(token string) error
+	GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error)
+	ValidateHS256Token(ctx context.Context, token string) error
 }

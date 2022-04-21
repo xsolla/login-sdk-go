@@ -5,6 +5,9 @@ run:
 
 
 linters-settings:
+
+  stylecheck:
+    checks: ["all", "-ST1000", "-ST1003"]
   testpackage:
     # regexp pattern to skip files
     skip-regexp: (export|internal)_test\.go
