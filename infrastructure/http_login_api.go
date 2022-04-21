@@ -16,7 +16,7 @@ import (
 
 const (
 	Timeout              = 3 * time.Second
-	ValidateTokenAPIPATH = "/api/token/validate"
+	ValidateTokenAPIPATH = "/api/token/validate" //nolint:gosec
 	ProjectsPath         = "/api/projects/"
 )
 
@@ -29,7 +29,7 @@ type HTTPLoginAPI struct {
 
 func NewHttpLoginAPI(baseUrl string, ignoreSslErrors bool) *HTTPLoginAPI {
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors}, //nolint:gosec
 	}
 
 	return &HTTPLoginAPI{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}

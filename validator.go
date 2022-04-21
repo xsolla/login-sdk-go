@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 
 	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
 )
@@ -67,21 +67,14 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 		if !ok {
 			return nil, ErrFailedParseJWT
 		}
-		if errors.Is(validationErr.Inner, errSHASecretKeyIsEmpty) {
-			err = mv.hs256LoginAPIValidator.Validate(ctx, tokenString)
-			if err != nil {
-				return nil, err
-			}
-			err = parsedToken.Claims.Valid()
-			if err != nil {
-				return nil, err
-			}
-
-			return parsedToken, nil
+		switch validationErr.Inner {
+		case errSHASecretKeyIsEmpty:
+			return mv.validateViaAPI(ctx, parsedToken, tokenString)
+		default:
+			return nil, err
 		}
-
-		return nil, err
 	}
+
 	// sign is valid, checkin token expiration date
 	err = parsedToken.Claims.Valid()
 	if err != nil {
@@ -89,6 +82,19 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 	} else {
 		return parsedToken, nil
 	}
+}
+
+func (mv MasterValidator) validateViaAPI(ctx context.Context, parsedToken *jwt.Token, tokenString string) (*jwt.Token, error) {
+	err := mv.hs256LoginAPIValidator.Validate(ctx, tokenString)
+	if err != nil {
+		return nil, err
+	}
+	err = parsedToken.Claims.Valid()
+	if err != nil {
+		return nil, err
+	}
+
+	return parsedToken, nil
 }
 
 func (hs HS256LoginAPIValidator) Validate(ctx context.Context, token string) error {
