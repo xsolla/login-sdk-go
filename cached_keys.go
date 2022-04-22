@@ -2,6 +2,7 @@ package login_sdk_go
 
 import (
 	"context"
+	"errors"
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
@@ -11,23 +12,30 @@ type ProjectKeysGetter interface {
 	GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error)
 }
 
-type cachedValidationKeysStorage struct {
+var ErrConvertKey = errors.New("error converting to ProjectPublicKey")
+
+type CachedValidationKeysStorage struct {
 	client ProjectKeysGetter
 	cache  cache.ValidationKeysCache
 }
 
-func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache cache.ValidationKeysCache) cachedValidationKeysStorage {
-	return cachedValidationKeysStorage{
+func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache cache.ValidationKeysCache) CachedValidationKeysStorage {
+	return CachedValidationKeysStorage{
 		client: client,
 		cache:  cache,
 	}
 }
 
-func (c cachedValidationKeysStorage) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
+func (c CachedValidationKeysStorage) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
 	cached, found := c.cache.Get(projectID)
 
 	if found {
-		return cached.([]model.ProjectPublicKey), nil
+		key, ok := cached.([]model.ProjectPublicKey)
+		if !ok {
+			return nil, ErrConvertKey
+		}
+
+		return key, nil
 	}
 
 	res, err := c.client.GetProjectKeysForLoginProject(ctx, projectID)
