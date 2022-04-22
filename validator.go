@@ -87,18 +87,16 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 func (mv MasterValidator) validateViaAPI(ctx context.Context, parsedToken *jwt.Token, tokenString string) (*jwt.Token, error) {
 	err := mv.hs256LoginAPIValidator.Validate(ctx, tokenString)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("mv.hs256LoginAPIValidator.Validate: %w", err)
 	}
 	err = parsedToken.Claims.Valid()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parsedToken.Claims.Valid: %w", err)
 	}
 
 	return parsedToken, nil
 }
 
 func (hs HS256LoginAPIValidator) Validate(ctx context.Context, token string) error {
-	l := hs.loginAPI
-
-	return l.ValidateHS256Token(ctx, token)
+	return hs.loginAPI.ValidateHS256Token(ctx, token)
 }
