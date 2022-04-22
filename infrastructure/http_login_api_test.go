@@ -1,11 +1,13 @@
 package infrastructure
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
@@ -32,7 +34,7 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	defer server.Close()
 
 	api := HttpLoginApi{server.Client(), server.URL}
-	body, err := api.GetProjectKeysForLoginProject(testProjectId)
+	body, err := api.GetProjectKeysForLoginProject(context.Background(), testProjectId)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, &body)
@@ -48,7 +50,7 @@ func TestHttpLoginApi_ValidateHS256Token(t *testing.T) {
 	defer server.Close()
 
 	api := HttpLoginApi{server.Client(), server.URL}
-	err := api.ValidateHS256Token("some_token")
+	err := api.ValidateHS256Token(context.Background(), "some_token")
 
 	assert.NoError(t, err)
 }
