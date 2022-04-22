@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-redis/redis"
-	"gitlab.loc/sdk-login/login-sdk-go"
 	"os"
 	"time"
+
+	"github.com/go-redis/redis"
+
+	"gitlab.loc/sdk-login/login-sdk-go"
 )
 
 const (
@@ -29,7 +31,6 @@ func main() {
 		fmt.Printf("Failed init login sdk. Error: %s", err)
 		os.Exit(1)
 	}
-
 	_, validateErr := loginSdk.Validate("{YOUR_TOKEN}")
 	if !validateErr.Valid() {
 		fmt.Println("Error: ", validateErr.Error())

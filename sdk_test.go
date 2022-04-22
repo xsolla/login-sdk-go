@@ -1,9 +1,10 @@
 package login_sdk_go
 
 import (
+	"testing"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestValidateMalformedToken(t *testing.T) {
