@@ -1,7 +1,6 @@
 package login_sdk_go
 
 import (
-	"context"
 	"testing"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,7 +10,7 @@ import (
 func TestValidateMalformedToken(t *testing.T) {
 	token := ""
 	loginSgk, _ := New(Config{})
-	_, err := loginSgk.Validate(context.Background(), token)
+	_, err := loginSgk.Validate(token)
 
 	require.False(t, err.Valid())
 }
@@ -21,7 +20,7 @@ func TestValidateHmacToken(t *testing.T) {
 	loginSgk, _ := New(Config{
 		ShaSecretKey: "your-256-bit-secret",
 	})
-	parsedToken, err := loginSgk.Validate(context.Background(), token)
+	parsedToken, err := loginSgk.Validate(token)
 
 	require.IsType(t, &jwt.Token{}, parsedToken)
 	require.True(t, parsedToken.Valid)
@@ -35,7 +34,7 @@ func TestValidateHmacToken(t *testing.T) {
 func TestValidateValidHmacTokenWithLoginApi(t *testing.T) {
 	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ4c29sbGFfbG9naW5fcHJvamVjdF9pZCI6IjEyMyIsImp0aSI6InRlc3QtanRpIn0.Y8NT2mX8q7MshRGUElQMWEhoLa8hnS2rZ3BL5XgtcVo"
 	loginSgk, _ := New(Config{})
-	parsedToken, err := loginSgk.Validate(context.Background(), token)
+	parsedToken, err := loginSgk.Validate(token)
 
 	require.IsType(t, &jwt.Token{}, parsedToken)
 	require.False(t, err.Valid())
@@ -46,7 +45,7 @@ func TestValidateExpiredRsaToken(t *testing.T) {
 	loginSgk, _ := New(Config{
 		IgnoreSslErrors: true,
 	})
-	_, err := loginSgk.Validate(context.Background(), token)
+	_, err := loginSgk.Validate(token)
 
 	require.False(t, err.Valid())
 	require.True(t, err.IsExpired())

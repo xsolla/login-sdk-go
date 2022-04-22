@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -32,7 +31,7 @@ func main() {
 		fmt.Printf("Failed init login sdk. Error: %s", err)
 		os.Exit(1)
 	}
-	_, validateErr := loginSdk.Validate(context.Background(), "{YOUR_TOKEN}")
+	_, validateErr := loginSdk.Validate("{YOUR_TOKEN}")
 	if !validateErr.Valid() {
 		fmt.Println("Error: ", validateErr.Error())
 		os.Exit(1)
