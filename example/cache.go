@@ -6,13 +6,13 @@ import (
 
 	"github.com/go-redis/redis"
 
-	login_sdk_go "gitlab.loc/sdk-login/login-sdk-go/keys"
+	"gitlab.loc/sdk-login/login-sdk-go/keys"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 type RedisCache struct {
 	client *redis.Client
-	s      *login_sdk_go.ProjectKeysGetter
+	s      *keys.ProjectKeysGetter
 }
 
 func NewRedisCache(client *redis.Client) *RedisCache {

@@ -28,7 +28,7 @@ type Config struct {
 type ConfigOption func(*Config)
 
 type validator interface {
-	Validate(ctx context.Context, jwt string, claims contract.SDKClaims) (*jwt.Token, error)
+	Validate(ctx context.Context, jwt string, claims contract.Claims) (*jwt.Token, error)
 }
 
 type LoginSdk struct {

@@ -41,12 +41,12 @@ func (hs HS256SigningKeyGetter) GetKey(context.Context, *jwt.Token) (interface{}
 
 func (rs RS256SigningKeyGetter) GetKey(ctx context.Context, token *jwt.Token) (interface{}, error) {
 	if kid, ok := token.Header["kid"].(string); ok {
-		cl, ok := token.Claims.(contract.SDKClaims)
+		claims, ok := token.Claims.(contract.Claims)
 		if !ok {
 			return nil, errors.New("failed receive claims for token")
 		}
 
-		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid, cl.GetProjectID())
+		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid, claims.GetProjectID())
 		if err != nil {
 			return nil, err
 		}
