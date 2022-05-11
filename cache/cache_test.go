@@ -6,13 +6,15 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 func TestNewDefaultCache(t *testing.T) {
 	dc := NewDefaultCache(time.Minute)
 
 	t.Run("implements ValidationKeysCache Interface", func(t *testing.T) {
-		assert.Implements(t, (*ValidationKeysCache)(nil), dc)
+		assert.Implements(t, (*contract.ValidationKeysCache)(nil), dc)
 	})
 
 	t.Run("shouldn't find any key in empty cache", func(t *testing.T) {

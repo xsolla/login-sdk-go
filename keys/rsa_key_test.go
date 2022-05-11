@@ -1,4 +1,4 @@
-package login_sdk_go
+package keys
 
 import (
 	"context"
@@ -13,29 +13,29 @@ import (
 )
 
 type testKeysStorage struct {
-	result *[]model.ProjectPublicKey
+	result []model.ProjectPublicKey
 	err    error
 }
 
-func (s testKeysStorage) GetProjectKeysForLoginProject(ctx context.Context, projectId string) ([]model.ProjectPublicKey, error) {
-	return *s.result, s.err
+func (s testKeysStorage) GetProjectKeysForLoginProject(context.Context, string) ([]model.ProjectPublicKey, error) {
+	return s.result, s.err
 }
 
 func TestGetPublicKey(t *testing.T) {
 	t.Run("should return err", func(t *testing.T) {
-		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: &[]model.ProjectPublicKey{}, err: fmt.Errorf("an error occurred")}}
+		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: []model.ProjectPublicKey{}, err: fmt.Errorf("an error occurred")}}
 		_, err := pk.getPublicKey(context.Background(), "42", "project-1")
 		assert.Error(t, err)
 	})
 
 	t.Run("should return error if there is no keys for project", func(t *testing.T) {
-		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: &[]model.ProjectPublicKey{}}}
+		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: []model.ProjectPublicKey{}}}
 		_, err := pk.getPublicKey(context.Background(), "42", "project-1")
 		assert.Error(t, err)
 	})
 
 	t.Run("should return error if there is no key with proper Kid", func(t *testing.T) {
-		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: &[]model.ProjectPublicKey{{Kid: "12"}}}}
+		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: []model.ProjectPublicKey{{Kid: "12"}}}}
 		_, err := pk.getPublicKey(context.Background(), "42", "project-1")
 		assert.Error(t, err)
 	})
@@ -48,7 +48,7 @@ func TestGetPublicKey(t *testing.T) {
 			N: modulusBigInt,
 		}
 
-		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: &[]model.ProjectPublicKey{{
+		pk := RSAPublicKeyGetter{storage: testKeysStorage{result: []model.ProjectPublicKey{{
 			Alg:      "RS256",
 			Exponent: "10001",
 			Kid:      "42",

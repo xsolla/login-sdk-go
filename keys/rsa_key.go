@@ -1,4 +1,4 @@
-package login_sdk_go
+package keys
 
 import (
 	"context"
@@ -14,6 +14,12 @@ var (
 
 type RSAPublicKeyGetter struct {
 	storage ProjectKeysGetter
+}
+
+func NewRSAPublicKeyGetter(storage ProjectKeysGetter) RSAPublicKeyGetter {
+	return RSAPublicKeyGetter{
+		storage: storage,
+	}
 }
 
 func (rsa RSAPublicKeyGetter) getPublicKey(ctx context.Context, kid, projectID string) (*rsa.PublicKey, error) {
