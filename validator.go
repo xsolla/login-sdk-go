@@ -8,7 +8,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"gitlab.loc/sdk-login/login-sdk-go/contract"
-	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
+	sdkcontract "gitlab.loc/sdk-login/login-sdk-go/interfaces"
+	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 var (
@@ -22,7 +23,7 @@ type Validator interface {
 
 type ValidatorWithParser interface {
 	Validate(ctx context.Context, jwt string) (*jwt.Token, error)
-	ValidateWithClaims(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error)
+	ValidateWithClaims(ctx context.Context, token string, claims sdkcontract.Claims) (*jwt.Token, error)
 }
 
 type HS256LoginAPIValidator struct {
@@ -58,7 +59,7 @@ func (mv *MasterValidator) Validate(ctx context.Context, tokenString string) (*j
 	return mv.validateToken(ctx, tokenString, &CustomClaims{})
 }
 
-func (mv *MasterValidator) validateToken(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
+func (mv *MasterValidator) validateToken(ctx context.Context, token string, claims sdkcontract.Claims) (*jwt.Token, error) {
 	parsedToken, err := jwt.ParseWithClaims(token, claims, mv.getParserKeyFunction(ctx))
 	if err == nil {
 		if err = validateTokenClaims(parsedToken); err != nil {

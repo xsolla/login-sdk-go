@@ -6,7 +6,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"gitlab.loc/sdk-login/login-sdk-go/contract"
+	sdkcontract "gitlab.loc/sdk-login/login-sdk-go/contract"
+	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 var (
@@ -45,7 +46,7 @@ func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (
 	}
 
 	if kid, ok := jwtToken.Header["kid"].(string); ok {
-		claims, ok := jwtToken.Claims.(contract.Claims)
+		claims, ok := jwtToken.Claims.(sdkcontract.Claims)
 		if !ok {
 			return nil, ErrReceiveTokenClaims
 		}

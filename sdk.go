@@ -9,6 +9,7 @@ import (
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
 	"gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/infrastructure"
+	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 const (
