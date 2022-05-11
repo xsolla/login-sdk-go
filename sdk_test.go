@@ -50,3 +50,78 @@ func TestValidateExpiredRsaToken(t *testing.T) {
 	require.False(t, err.Valid())
 	require.True(t, err.IsExpired())
 }
+
+type testClaims struct {
+	ProjectID string `json:"xsolla_login_project_id,omitempty"`
+}
+
+func (t testClaims) Valid() error {
+	return nil
+}
+
+func (t testClaims) GetProjectID() string {
+	return t.ProjectID
+}
+
+func TestValidateWithClaims(t *testing.T) {
+	type want struct {
+		hasError   bool
+		hasToken   bool
+		tokenValid bool
+	}
+
+	testCases := []struct {
+		name   string
+		token  string
+		config Config
+		want   want
+	}{
+		{
+			name:   "empty token",
+			token:  "",
+			config: Config{},
+			want: want{
+				hasError:   true,
+				hasToken:   false,
+				tokenValid: false,
+			},
+		},
+		{
+			name:  "hmac token",
+			token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ4c29sbGFfbG9naW5fcHJvamVjdF9pZCI6IjEyMyIsImp0aSI6InRlc3QtanRpIn0.Y8NT2mX8q7MshRGUElQMWEhoLa8hnS2rZ3BL5XgtcVo",
+			config: Config{
+				ShaSecretKey: "your-256-bit-secret",
+			},
+			want: want{
+				hasError:   false,
+				hasToken:   true,
+				tokenValid: true,
+			},
+		},
+		{
+			name:   "hmac token with login api",
+			token:  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ4c29sbGFfbG9naW5fcHJvamVjdF9pZCI6IjEyMyIsImp0aSI6InRlc3QtanRpIn0.Y8NT2mX8q7MshRGUElQMWEhoLa8hnS2rZ3BL5XgtcVo",
+			config: Config{},
+			want: want{
+				hasError:   true,
+				hasToken:   false,
+				tokenValid: false,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			loginSgk, _ := New(tc.config)
+			token, err := loginSgk.ValidateWithClaims(tc.token, &testClaims{})
+
+			if tc.want.hasError {
+				require.NotNil(t, err)
+			}
+
+			if tc.want.hasToken {
+				require.Equal(t, tc.want.tokenValid, token.Valid)
+			}
+		})
+	}
+}

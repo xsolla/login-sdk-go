@@ -39,3 +39,7 @@ func (c CustomClaims) Valid() error {
 
 	return c.StandardClaims.Valid()
 }
+
+func (c CustomClaims) GetProjectID() string {
+	return c.ProjectId
+}

@@ -5,6 +5,8 @@ import (
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"
+
+	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 var (
@@ -43,11 +45,11 @@ func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (
 	}
 
 	if kid, ok := jwtToken.Header["kid"].(string); ok {
-		claims, ok := jwtToken.Claims.(*CustomClaims)
+		claims, ok := jwtToken.Claims.(contract.SDKClaims)
 		if !ok {
 			return nil, ErrReceiveTokenClaims
 		}
-		rs.rsaPublicKeyGetter.projectID = claims.ProjectID
+		rs.rsaPublicKeyGetter.projectID = claims.GetProjectID()
 		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid)
 		if err != nil {
 			return nil, err

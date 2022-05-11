@@ -8,6 +8,7 @@ import (
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
 	"gitlab.loc/sdk-login/login-sdk-go/infrastructure"
+	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 const (
@@ -65,4 +66,21 @@ func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, tokenString string
 
 func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
 	return sdk.ValidateWithContext(context.Background(), tokenString)
+}
+
+func (sdk *LoginSdk) ValidateWithClaimsAndContext(
+	ctx context.Context,
+	token string,
+	claims contract.SDKClaims,
+) (*jwt.Token, *WrappedError) {
+	parsedToken, err := sdk.validator.ValidateWithClaims(ctx, token, claims)
+	if err != nil {
+		return nil, WrapError(err)
+	}
+
+	return parsedToken, nil
+}
+
+func (sdk *LoginSdk) ValidateWithClaims(token string, claims contract.SDKClaims) (*jwt.Token, *WrappedError) {
+	return sdk.ValidateWithClaimsAndContext(context.Background(), token, claims)
 }
