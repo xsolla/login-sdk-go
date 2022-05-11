@@ -13,12 +13,12 @@ var (
 )
 
 type RSAPublicKeyGetter struct {
-	projectID string
-	storage   ProjectKeysGetter
+	storage ProjectKeysGetter
 }
 
-func (rsa RSAPublicKeyGetter) getPublicKey(ctx context.Context, kid string) (*rsa.PublicKey, error) {
-	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(ctx, rsa.projectID)
+func (rsa RSAPublicKeyGetter) getPublicKey(ctx context.Context, kid, projectID string) (*rsa.PublicKey, error) {
+	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(ctx, projectID)
+
 	if err != nil {
 		return nil, err
 	}

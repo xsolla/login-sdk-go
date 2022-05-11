@@ -50,8 +50,7 @@ func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (
 		if !ok {
 			return nil, ErrReceiveTokenClaims
 		}
-		rs.rsaPublicKeyGetter.projectID = claims.GetProjectID()
-		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid)
+		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid, claims.GetProjectID())
 		if err != nil {
 			return nil, err
 		}
