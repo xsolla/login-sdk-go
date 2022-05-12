@@ -17,7 +17,7 @@ type cacheTestCache struct {
 	cached *[]model.ProjectPublicKey
 }
 
-func (f cacheTestClient) GetProjectKeysForLoginProject(ctx context.Context, projectId string) ([]model.ProjectPublicKey, error) {
+func (f cacheTestClient) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
 	return *f.result, nil
 }
 
@@ -32,7 +32,7 @@ func (c cacheTestCache) Set(key string, value interface{}) {}
 
 func TestCachedValidationKeysStorage(t *testing.T) {
 	t.Run("get from cache", func(t *testing.T) {
-		var storedInCache = []model.ProjectPublicKey{
+		storedInCache := []model.ProjectPublicKey{
 			{
 				Alg:      "RS256",
 				Exponent: "10001",
@@ -45,7 +45,7 @@ func TestCachedValidationKeysStorage(t *testing.T) {
 
 		var givenByClient []model.ProjectPublicKey
 
-		var cks = NewCachedValidationKeysStorage(cacheTestClient{result: &givenByClient}, cacheTestCache{cached: &storedInCache})
+		cks := NewCachedValidationKeysStorage(cacheTestClient{result: &givenByClient}, cacheTestCache{cached: &storedInCache})
 
 		res, err := cks.GetProjectKeysForLoginProject(context.Background(), "testId")
 		require.NoError(t, err)
@@ -55,7 +55,7 @@ func TestCachedValidationKeysStorage(t *testing.T) {
 	t.Run("get fresh", func(t *testing.T) {
 		var storedInCache []model.ProjectPublicKey
 
-		var givenByClient = []model.ProjectPublicKey{
+		givenByClient := []model.ProjectPublicKey{
 			{
 				Alg:      "RS256",
 				Exponent: "10001",
@@ -66,7 +66,7 @@ func TestCachedValidationKeysStorage(t *testing.T) {
 			},
 		}
 
-		var cks = NewCachedValidationKeysStorage(cacheTestClient{result: &givenByClient}, cacheTestCache{cached: &storedInCache})
+		cks := NewCachedValidationKeysStorage(cacheTestClient{result: &givenByClient}, cacheTestCache{cached: &storedInCache})
 
 		res, err := cks.GetProjectKeysForLoginProject(context.Background(), "new_project")
 		require.NoError(t, err)

@@ -5,34 +5,37 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
 const (
 	Timeout              = 3 * time.Second
-	ValidateTokenAPIPATH = "/api/token/validate"
+	ValidateTokenAPIPATH = "/api/token/validate" //nolint:gosec
 	ProjectsPath         = "/api/projects/"
 )
 
-type HttpLoginApi struct {
+var ErrWrongStatusCode = errors.New("wrong status code")
+
+type HTTPLoginAPI struct {
 	Client  *http.Client
-	baseUrl string
+	baseURL string
 }
 
-func NewHttpLoginApi(baseUrl string, ignoreSslErrors bool) interfaces.LoginApi {
+func NewHttpLoginAPI(baseUrl string, ignoreSslErrors bool) *HTTPLoginAPI {
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSslErrors}, //nolint:gosec
 	}
-	return &HttpLoginApi{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
+
+	return &HTTPLoginAPI{&http.Client{Timeout: Timeout, Transport: tr}, baseUrl}
 }
 
-func (api *HttpLoginApi) makeRequest(ctx context.Context, method string, url string, body []byte) (*http.Response, error) {
+func (api *HTTPLoginAPI) makeRequest(ctx context.Context, method string, url string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed create request: %w", err)
@@ -47,8 +50,8 @@ func (api *HttpLoginApi) makeRequest(ctx context.Context, method string, url str
 	return response, nil
 }
 
-func (api *HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
-	response, err := api.makeRequest(ctx, http.MethodGet, fmt.Sprintf("%s%s%s/keys", api.baseUrl, ProjectsPath, projectID), nil)
+func (api *HTTPLoginAPI) GetProjectKeysForLoginProject(ctx context.Context, projectID string) ([]model.ProjectPublicKey, error) {
+	response, err := api.makeRequest(ctx, http.MethodGet, fmt.Sprintf("%s%s%s/keys", api.baseURL, ProjectsPath, projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -68,21 +71,21 @@ func (api *HttpLoginApi) GetProjectKeysForLoginProject(ctx context.Context, proj
 	return keysResp, nil
 }
 
-func (api *HttpLoginApi) ValidateHS256Token(ctx context.Context, token string) error {
+func (api *HTTPLoginAPI) ValidateHS256Token(ctx context.Context, token string) error {
 	values := map[string]string{"token": token}
 	data, err := json.Marshal(values)
 	if err != nil {
 		return fmt.Errorf("failed marshal data %w", err)
 	}
 
-	response, err := api.makeRequest(ctx, http.MethodPost, fmt.Sprintf("%s%s", api.baseUrl, ValidateTokenAPIPATH), data)
+	response, err := api.makeRequest(ctx, http.MethodPost, fmt.Sprintf("%s%s", api.baseURL, ValidateTokenAPIPATH), data)
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("http request error: %d", response.StatusCode)
+		return fmt.Errorf("%w:%d", ErrWrongStatusCode, response.StatusCode)
 	}
 
 	return nil

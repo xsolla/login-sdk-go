@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	defaultLoginApiUrl = "https://login.xsolla.com"
+	defaultLoginAPIURL = "https://login.xsolla.com"
 	keyTTL             = 10 * time.Minute
 )
 
 type Config struct {
 	IgnoreSslErrors bool
 	ShaSecretKey    string
-	LoginApiUrl     string
+	LoginAPIURL     string
 	Cache           cache.ValidationKeysCache
 }
 
@@ -32,25 +32,24 @@ type LoginSdk struct {
 func New(config Config) (*LoginSdk, error) {
 	config.fillDefaults()
 
-	loginApi := infrastructure.NewHttpLoginApi(config.LoginApiUrl, config.IgnoreSslErrors)
+	loginAPI := infrastructure.NewHttpLoginAPI(config.LoginAPIURL, config.IgnoreSslErrors)
 
-	mv, err := NewMasterValidator(config, &loginApi)
-
+	validator, err := NewMasterValidator(config, loginAPI)
 	if err != nil {
 		return nil, err
 	}
 
 	l := &LoginSdk{
 		config:    config,
-		validator: mv,
+		validator: validator,
 	}
 
 	return l, nil
 }
 
 func (c *Config) fillDefaults() {
-	if c.LoginApiUrl == "" {
-		c.LoginApiUrl = defaultLoginApiUrl
+	if c.LoginAPIURL == "" {
+		c.LoginAPIURL = defaultLoginAPIURL
 	}
 
 	if c.Cache == nil {
@@ -60,6 +59,7 @@ func (c *Config) fillDefaults() {
 
 func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, tokenString string) (*jwt.Token, *WrappedError) {
 	parsedToken, err := sdk.validator.Validate(ctx, tokenString)
+
 	return parsedToken, WrapError(err)
 }
 

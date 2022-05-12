@@ -5,6 +5,8 @@ import (
 	"math/big"
 )
 
+const base = 16
+
 type ProjectPublicKey struct {
 	Alg      string `json:"alg"`
 	Exponent string `json:"e"`
@@ -15,8 +17,8 @@ type ProjectPublicKey struct {
 }
 
 func (k ProjectPublicKey) CreateRSAPublicKey() *rsa.PublicKey {
-	modulusBigInt, mOk := new(big.Int).SetString(k.Modulus, 16)
-	exponentBigInt, eOk := new(big.Int).SetString(k.Exponent, 16)
+	modulusBigInt, mOk := new(big.Int).SetString(k.Modulus, base)
+	exponentBigInt, eOk := new(big.Int).SetString(k.Exponent, base)
 
 	if !mOk || !eOk {
 		return &rsa.PublicKey{}

@@ -4,22 +4,27 @@ import (
 	"context"
 	"crypto/rsa"
 	"errors"
+	"fmt"
+)
+
+var (
+	ErrNoPublicRSA   = errors.New("there is no public RSA keys available for this project")
+	ErrNoKeysMatches = errors.New("unable to find a signing key that matches")
 )
 
 type RSAPublicKeyGetter struct {
-	projectId string
+	projectID string
 	storage   ProjectKeysGetter
 }
 
 func (rsa RSAPublicKeyGetter) getPublicKey(ctx context.Context, kid string) (*rsa.PublicKey, error) {
-	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(ctx, rsa.projectId)
-
+	keysResp, err := rsa.storage.GetProjectKeysForLoginProject(ctx, rsa.projectID)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(keysResp) == 0 {
-		return nil, errors.New("there is no public RSA keys available for this project")
+		return nil, ErrNoPublicRSA
 	}
 
 	for i := range keysResp {
@@ -28,5 +33,5 @@ func (rsa RSAPublicKeyGetter) getPublicKey(ctx context.Context, kid string) (*rs
 		}
 	}
 
-	return nil, errors.New("unable to find a signing key that matches " + kid)
+	return nil, fmt.Errorf("%w %s", ErrNoKeysMatches, kid)
 }
