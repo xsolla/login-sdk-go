@@ -68,6 +68,7 @@ func (c *Config) fillDefaults() {
 
 func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, token string) (*jwt.Token, *WrappedError) {
 	parsedToken, err := sdk.validator.Validate(ctx, token, &CustomClaims{})
+
 	return parsedToken, WrapError(err)
 }
 

@@ -9,7 +9,11 @@ import (
 	"gitlab.loc/sdk-login/login-sdk-go/contract"
 )
 
-var ErrSHASecretKeyIsEmpty = errors.New("sha secret key is empty")
+var (
+	ErrReceiveTokenClaims  = errors.New("failed receive claims for token")
+	ErrNoKidHeader         = errors.New("token doesn't have kid header")
+	ErrSHASecretKeyIsEmpty = errors.New("sha secret key is empty")
+)
 
 type HS256SigningKeyGetter struct {
 	key string
@@ -43,7 +47,7 @@ func (rs RS256SigningKeyGetter) GetKey(ctx context.Context, token *jwt.Token) (i
 	if kid, ok := token.Header["kid"].(string); ok {
 		claims, ok := token.Claims.(contract.Claims)
 		if !ok {
-			return nil, errors.New("failed receive claims for token")
+			return nil, ErrReceiveTokenClaims
 		}
 
 		key, err := rs.rsaPublicKeyGetter.getPublicKey(ctx, kid, claims.GetProjectID())
@@ -54,5 +58,5 @@ func (rs RS256SigningKeyGetter) GetKey(ctx context.Context, token *jwt.Token) (i
 		return key, nil
 	}
 
-	return nil, errors.New("token doesn't have kid header")
+	return nil, ErrNoKidHeader
 }

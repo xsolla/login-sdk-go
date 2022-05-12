@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,10 +12,13 @@ import (
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
+//nolint:gosec
 const (
 	validateTokenPath = "/api/token/validate"
 	projectsPath      = "/api/projects"
 )
+
+var ErrWrongStatusCode = errors.New("wrong status code")
 
 func (a *Adapter) makeRequest(ctx context.Context, method string, path string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, fmt.Sprintf("%s%s", a.baseUrl, path), bytes.NewBuffer(body))
@@ -66,7 +70,7 @@ func (a *Adapter) ValidateHS256Token(ctx context.Context, token string) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("http request error: %d", response.StatusCode)
+		return fmt.Errorf("%w:%d", ErrWrongStatusCode, response.StatusCode)
 	}
 
 	return nil

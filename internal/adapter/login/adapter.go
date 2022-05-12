@@ -14,7 +14,8 @@ type Adapter struct {
 }
 
 func NewAdapter(baseUrl string, ignoreSslErrors bool) *Adapter {
-	tr := &http.Transport{
+	//nolint:gosec
+	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: ignoreSslErrors,
 		},
@@ -22,7 +23,7 @@ func NewAdapter(baseUrl string, ignoreSslErrors bool) *Adapter {
 
 	return &Adapter{
 		client: &http.Client{
-			Transport: tr,
+			Transport: transport,
 			Timeout:   timeout,
 		},
 		baseUrl: baseUrl,
