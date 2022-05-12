@@ -1,4 +1,4 @@
-package infrastructure
+package login
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 
 func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	testProjectId := "test"
-	expected := &[]model.ProjectPublicKey{{Kid: "12"}, {Kid: "21"}}
+	expected := []model.ProjectPublicKey{{Kid: "12"}, {Kid: "21"}}
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		assert.Equal(t, req.URL.String(), "/api/projects/"+testProjectId+"/keys")
@@ -33,23 +33,23 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	}))
 	defer server.Close()
 
-	api := HTTPLoginAPI{server.Client(), server.URL}
+	api := Adapter{server.Client(), server.URL}
 	body, err := api.GetProjectKeysForLoginProject(context.Background(), testProjectId)
 
 	assert.NoError(t, err)
-	assert.Equal(t, expected, &body)
+	assert.Equal(t, expected, body)
 }
 
 func TestHttpLoginApi_ValidateHS256Token(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(t, req.URL.String(), ValidateTokenAPIPATH)
+		assert.Equal(t, req.URL.String(), validateTokenPath)
 
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
 
-	api := HTTPLoginAPI{server.Client(), server.URL}
+	api := Adapter{server.Client(), server.URL}
 	err := api.ValidateHS256Token(context.Background(), "some_token")
 
 	assert.NoError(t, err)

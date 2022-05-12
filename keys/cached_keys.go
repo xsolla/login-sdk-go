@@ -1,10 +1,10 @@
-package login_sdk_go
+package keys
 
 import (
 	"context"
 	"errors"
 
-	"gitlab.loc/sdk-login/login-sdk-go/cache"
+	"gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 
@@ -16,10 +16,10 @@ var ErrConvertKey = errors.New("error converting to ProjectPublicKey")
 
 type CachedValidationKeysStorage struct {
 	client ProjectKeysGetter
-	cache  cache.ValidationKeysCache
+	cache  contract.ValidationKeysCache
 }
 
-func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache cache.ValidationKeysCache) CachedValidationKeysStorage {
+func NewCachedValidationKeysStorage(client ProjectKeysGetter, cache contract.ValidationKeysCache) CachedValidationKeysStorage {
 	return CachedValidationKeysStorage{
 		client: client,
 		cache:  cache,

@@ -6,11 +6,6 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-type ValidationKeysCache interface {
-	Get(projectID string) (interface{}, bool)
-	Set(projectID string, keys interface{})
-}
-
 type DefaultValidationKeysCache struct {
 	cache *cache.Cache
 }

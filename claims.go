@@ -6,8 +6,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-type TokenString string
-
 var (
 	ErrJTIClaimIsRequired    = errors.New("jti claim is required")
 	ErrXsollaClaimIsRequired = errors.New("xsolla_login_project_id claim is required")
@@ -15,8 +13,8 @@ var (
 
 type CustomClaims struct {
 	ProjectID string   `json:"xsolla_login_project_id,omitempty"`
+	Type      string   `json:"type,omitempty"`
 	Audience  []string `json:"aud,omitempty"`
-	Type      string   `json:"type:omitempty"`
 	jwt.StandardClaims
 }
 

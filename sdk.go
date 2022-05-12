@@ -8,7 +8,8 @@ import (
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
 	"gitlab.loc/sdk-login/login-sdk-go/contract"
-	"gitlab.loc/sdk-login/login-sdk-go/infrastructure"
+	"gitlab.loc/sdk-login/login-sdk-go/internal/adapter/login"
+	vl "gitlab.loc/sdk-login/login-sdk-go/internal/service/validator"
 )
 
 const (
@@ -20,22 +21,29 @@ type Config struct {
 	IgnoreSslErrors bool
 	ShaSecretKey    string
 	LoginAPIURL     string
-	Cache           cache.ValidationKeysCache
+	Cache           contract.ValidationKeysCache
 }
 
 type ConfigOption func(*Config)
 
+type validator interface {
+	Validate(ctx context.Context, jwt string, claims contract.Claims) (*jwt.Token, error)
+}
+
 type LoginSdk struct {
 	config    Config
-	validator ValidatorWithParser
+	validator validator
 }
 
 func New(config Config) (*LoginSdk, error) {
 	config.fillDefaults()
 
-	loginAPI := infrastructure.NewHttpLoginAPI(config.LoginAPIURL, config.IgnoreSslErrors)
+	loginApi := login.NewAdapter(config.LoginAPIURL, config.IgnoreSslErrors)
 
-	validator, err := NewMasterValidator(config, loginAPI)
+	validator, err := vl.New(vl.Config{
+		ShaSecretKey: config.ShaSecretKey,
+		Cache:        config.Cache,
+	}, loginApi)
 	if err != nil {
 		return nil, err
 	}
@@ -58,14 +66,14 @@ func (c *Config) fillDefaults() {
 	}
 }
 
-func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, tokenString string) (*jwt.Token, *WrappedError) {
-	parsedToken, err := sdk.validator.Validate(ctx, tokenString)
+func (sdk *LoginSdk) ValidateWithContext(ctx context.Context, token string) (*jwt.Token, *WrappedError) {
+	parsedToken, err := sdk.validator.Validate(ctx, token, &CustomClaims{})
 
 	return parsedToken, WrapError(err)
 }
 
-func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
-	return sdk.ValidateWithContext(context.Background(), tokenString)
+func (sdk *LoginSdk) Validate(token string) (*jwt.Token, *WrappedError) {
+	return sdk.ValidateWithContext(context.Background(), token)
 }
 
 func (sdk *LoginSdk) ValidateWithClaimsAndContext(
@@ -73,7 +81,7 @@ func (sdk *LoginSdk) ValidateWithClaimsAndContext(
 	token string,
 	claims contract.Claims,
 ) (*jwt.Token, *WrappedError) {
-	parsedToken, err := sdk.validator.ValidateWithClaims(ctx, token, claims)
+	parsedToken, err := sdk.validator.Validate(ctx, token, claims)
 	if err != nil {
 		return nil, WrapError(err)
 	}

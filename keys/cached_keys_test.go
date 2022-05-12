@@ -1,4 +1,4 @@
-package login_sdk_go
+package keys
 
 import (
 	"context"
