@@ -71,7 +71,7 @@ func (sdk *LoginSdk) Validate(tokenString string) (*jwt.Token, *WrappedError) {
 func (sdk *LoginSdk) ValidateWithClaimsAndContext(
 	ctx context.Context,
 	token string,
-	claims contract.SDKClaims,
+	claims contract.Claims,
 ) (*jwt.Token, *WrappedError) {
 	parsedToken, err := sdk.validator.ValidateWithClaims(ctx, token, claims)
 	if err != nil {
@@ -81,6 +81,6 @@ func (sdk *LoginSdk) ValidateWithClaimsAndContext(
 	return parsedToken, nil
 }
 
-func (sdk *LoginSdk) ValidateWithClaims(token string, claims contract.SDKClaims) (*jwt.Token, *WrappedError) {
+func (sdk *LoginSdk) ValidateWithClaims(token string, claims contract.Claims) (*jwt.Token, *WrappedError) {
 	return sdk.ValidateWithClaimsAndContext(context.Background(), token, claims)
 }

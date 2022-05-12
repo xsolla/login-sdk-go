@@ -45,7 +45,7 @@ func (rs RS256SigningKeyGetter) getKey(ctx context.Context, token interface{}) (
 	}
 
 	if kid, ok := jwtToken.Header["kid"].(string); ok {
-		claims, ok := jwtToken.Claims.(contract.SDKClaims)
+		claims, ok := jwtToken.Claims.(contract.Claims)
 		if !ok {
 			return nil, ErrReceiveTokenClaims
 		}

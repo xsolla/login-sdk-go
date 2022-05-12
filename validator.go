@@ -22,7 +22,7 @@ type Validator interface {
 
 type ValidatorWithParser interface {
 	Validate(ctx context.Context, jwt string) (*jwt.Token, error)
-	ValidateWithClaims(ctx context.Context, token string, claims contract.SDKClaims) (*jwt.Token, error)
+	ValidateWithClaims(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error)
 }
 
 type HS256LoginAPIValidator struct {
@@ -50,7 +50,7 @@ func NewMasterValidator(config Config, client interfaces.LoginAPI) (*MasterValid
 	}, nil
 }
 
-func (mv MasterValidator) ValidateWithClaims(ctx context.Context, token string, claims contract.SDKClaims) (*jwt.Token, error) {
+func (mv MasterValidator) ValidateWithClaims(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
 	return mv.validateToken(ctx, token, claims)
 }
 
@@ -58,7 +58,7 @@ func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jw
 	return mv.validateToken(ctx, tokenString, &CustomClaims{})
 }
 
-func (mv MasterValidator) validateToken(ctx context.Context, token string, claims contract.SDKClaims) (*jwt.Token, error) {
+func (mv MasterValidator) validateToken(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
 	parsedToken, err := jwt.ParseWithClaims(token, claims, mv.getParserKeyFunction(ctx))
 	if err == nil {
 		if err = validateTokenClaims(parsedToken); err != nil {
