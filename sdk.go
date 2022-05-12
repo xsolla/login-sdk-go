@@ -7,9 +7,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"gitlab.loc/sdk-login/login-sdk-go/cache"
-
+	"gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/internal/adapter/login"
-	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 	vl "gitlab.loc/sdk-login/login-sdk-go/internal/service/validator"
 )
 

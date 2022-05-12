@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
+	"gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/model"
 )
 

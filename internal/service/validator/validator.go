@@ -7,6 +7,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
+	sdkcontract "gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/internal/service/apivalidator"
 	"gitlab.loc/sdk-login/login-sdk-go/keys"
@@ -14,7 +15,7 @@ import (
 
 type Config struct {
 	ShaSecretKey string
-	Cache        contract.ValidationKeysCache
+	Cache        sdkcontract.ValidationKeysCache
 }
 
 type Validator struct {
@@ -34,11 +35,11 @@ func New(config Config, loginAPI contract.LoginAPI) (*Validator, error) {
 	}, nil
 }
 
-func (mv Validator) Validate(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
+func (mv Validator) Validate(ctx context.Context, token string, claims sdkcontract.Claims) (*jwt.Token, error) {
 	return mv.validateToken(ctx, token, claims)
 }
 
-func (mv Validator) validateToken(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
+func (mv Validator) validateToken(ctx context.Context, token string, claims sdkcontract.Claims) (*jwt.Token, error) {
 	parsedToken, err := jwt.ParseWithClaims(token, claims, mv.getParserKeyFunction(ctx))
 	if err == nil {
 		if err = validateTokenClaims(parsedToken); err != nil {
