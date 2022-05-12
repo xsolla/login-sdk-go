@@ -51,7 +51,7 @@ func NewMasterValidator(config Config, client interfaces.LoginAPI) (*MasterValid
 	}, nil
 }
 
-func (mv *MasterValidator) ValidateWithClaims(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
+func (mv *MasterValidator) ValidateWithClaims(ctx context.Context, token string, claims sdkcontract.Claims) (*jwt.Token, error) {
 	return mv.validateToken(ctx, token, claims)
 }
 

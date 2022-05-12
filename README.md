@@ -103,7 +103,7 @@ func main() {
 	fmt.Println("Success!")
 }
 ```
-2. Полная реализация интерфейса `SDKClaims`, а именно, методы `Valid()` и `GetProjectID()` последний нужен для работы с LoginAPI.
+2. Полная реализация интерфейса `Claims`, а именно, методы `Valid()` и `GetProjectID()` последний нужен для работы с LoginAPI.
 ```go
 package main
 
