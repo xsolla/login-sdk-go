@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 
+	"gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/interfaces"
-	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
 )
 
 var (
@@ -50,15 +50,15 @@ func NewMasterValidator(config Config, client interfaces.LoginAPI) (*MasterValid
 	}, nil
 }
 
-func (mv MasterValidator) ValidateWithClaims(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
+func (mv *MasterValidator) ValidateWithClaims(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
 	return mv.validateToken(ctx, token, claims)
 }
 
-func (mv MasterValidator) Validate(ctx context.Context, tokenString string) (*jwt.Token, error) {
+func (mv *MasterValidator) Validate(ctx context.Context, tokenString string) (*jwt.Token, error) {
 	return mv.validateToken(ctx, tokenString, &CustomClaims{})
 }
 
-func (mv MasterValidator) validateToken(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
+func (mv *MasterValidator) validateToken(ctx context.Context, token string, claims contract.Claims) (*jwt.Token, error) {
 	parsedToken, err := jwt.ParseWithClaims(token, claims, mv.getParserKeyFunction(ctx))
 	if err == nil {
 		if err = validateTokenClaims(parsedToken); err != nil {
@@ -83,7 +83,7 @@ func (mv MasterValidator) validateToken(ctx context.Context, token string, claim
 	}
 }
 
-func (mv MasterValidator) getParserKeyFunction(ctx context.Context) jwt.Keyfunc {
+func (mv *MasterValidator) getParserKeyFunction(ctx context.Context) jwt.Keyfunc {
 	return func(token *jwt.Token) (interface{}, error) {
 		signingMethod := token.Method
 		switch signingMethod {
@@ -97,7 +97,7 @@ func (mv MasterValidator) getParserKeyFunction(ctx context.Context) jwt.Keyfunc 
 	}
 }
 
-func (mv MasterValidator) validateViaAPI(ctx context.Context, parsedToken *jwt.Token, tokenString string) (*jwt.Token, error) {
+func (mv *MasterValidator) validateViaAPI(ctx context.Context, parsedToken *jwt.Token, tokenString string) (*jwt.Token, error) {
 	err := mv.hs256LoginAPIValidator.Validate(ctx, tokenString)
 	if err != nil {
 		return nil, fmt.Errorf("mv.hs256LoginAPIValidator.Validate: %w", err)

@@ -41,5 +41,5 @@ func (c CustomClaims) Valid() error {
 }
 
 func (c *CustomClaims) GetProjectID() string {
-	return c.ProjectId
+	return c.ProjectID
 }
