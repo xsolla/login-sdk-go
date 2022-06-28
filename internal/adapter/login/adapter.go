@@ -6,14 +6,12 @@ import (
 	"time"
 )
 
-const timeout = 3 * time.Second
-
 type Adapter struct {
 	client  *http.Client
 	baseUrl string
 }
 
-func NewAdapter(baseUrl string, ignoreSslErrors bool) *Adapter {
+func NewAdapter(baseUrl string, ignoreSslErrors bool, timeout time.Duration) *Adapter {
 	//nolint:gosec
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{

@@ -15,6 +15,7 @@ import (
 const (
 	defaultLoginAPIURL = "https://login.xsolla.com"
 	keyTTL             = 10 * time.Minute
+	defaultAPITimeout  = 5 * time.Second
 )
 
 type Config struct {
@@ -22,6 +23,7 @@ type Config struct {
 	ShaSecretKey    string
 	LoginAPIURL     string
 	Cache           contract.ValidationKeysCache
+	APITimeout      time.Duration
 }
 
 type ConfigOption func(*Config)
@@ -38,7 +40,7 @@ type LoginSdk struct {
 func New(config Config) (*LoginSdk, error) {
 	config.fillDefaults()
 
-	loginApi := login.NewAdapter(config.LoginAPIURL, config.IgnoreSslErrors)
+	loginApi := login.NewAdapter(config.LoginAPIURL, config.IgnoreSslErrors, config.APITimeout)
 
 	validator, err := vl.New(vl.Config{
 		ShaSecretKey: config.ShaSecretKey,
@@ -63,6 +65,9 @@ func (c *Config) fillDefaults() {
 
 	if c.Cache == nil {
 		c.Cache = cache.NewDefaultCache(keyTTL)
+	}
+	if c.APITimeout == 0 {
+		c.APITimeout = defaultAPITimeout
 	}
 }
 
