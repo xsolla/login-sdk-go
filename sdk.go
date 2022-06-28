@@ -19,11 +19,13 @@ const (
 )
 
 type Config struct {
-	IgnoreSslErrors bool
-	ShaSecretKey    string
-	LoginAPIURL     string
-	Cache           contract.ValidationKeysCache
-	APITimeout      time.Duration
+	IgnoreSslErrors  bool
+	ShaSecretKey     string
+	LoginAPIURL      string
+	Cache            contract.ValidationKeysCache
+	APITimeout       time.Duration
+	ExtraHeaderName  string
+	ExtraHeaderValue string
 }
 
 type ConfigOption func(*Config)
@@ -40,7 +42,8 @@ type LoginSdk struct {
 func New(config Config) (*LoginSdk, error) {
 	config.fillDefaults()
 
-	loginApi := login.NewAdapter(config.LoginAPIURL, config.IgnoreSslErrors, config.APITimeout)
+	loginApi := login.NewAdapter(config.LoginAPIURL, config.IgnoreSslErrors, config.APITimeout,
+		config.ExtraHeaderName, config.ExtraHeaderValue)
 
 	validator, err := vl.New(vl.Config{
 		ShaSecretKey: config.ShaSecretKey,

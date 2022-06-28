@@ -7,11 +7,13 @@ import (
 )
 
 type Adapter struct {
-	client  *http.Client
-	baseUrl string
+	client           *http.Client
+	baseUrl          string
+	extraHeaderName  string
+	extraHeaderValue string
 }
 
-func NewAdapter(baseUrl string, ignoreSslErrors bool, timeout time.Duration) *Adapter {
+func NewAdapter(baseUrl string, ignoreSslErrors bool, timeout time.Duration, extraHeaderName, extraHeaderValue string) *Adapter {
 	//nolint:gosec
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -24,6 +26,8 @@ func NewAdapter(baseUrl string, ignoreSslErrors bool, timeout time.Duration) *Ad
 			Transport: transport,
 			Timeout:   timeout,
 		},
-		baseUrl: baseUrl,
+		baseUrl:          baseUrl,
+		extraHeaderName:  extraHeaderName,
+		extraHeaderValue: extraHeaderValue,
 	}
 }

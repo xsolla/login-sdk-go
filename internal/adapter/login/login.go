@@ -26,6 +26,9 @@ func (a *Adapter) makeRequest(ctx context.Context, method string, path string, b
 		return nil, fmt.Errorf("failed create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if a.extraHeaderName != "" {
+		req.Header.Set(a.extraHeaderName, a.extraHeaderValue)
+	}
 
 	response, err := a.client.Do(req)
 	if err != nil {
