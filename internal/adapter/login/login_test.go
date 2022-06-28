@@ -33,7 +33,7 @@ func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {
 	}))
 	defer server.Close()
 
-	api := Adapter{server.Client(), server.URL}
+	api := Adapter{server.Client(), server.URL, "", ""}
 	body, err := api.GetProjectKeysForLoginProject(context.Background(), testProjectId)
 
 	assert.NoError(t, err)
@@ -49,7 +49,7 @@ func TestHttpLoginApi_ValidateHS256Token(t *testing.T) {
 	}))
 	defer server.Close()
 
-	api := Adapter{server.Client(), server.URL}
+	api := Adapter{server.Client(), server.URL, "", ""}
 	err := api.ValidateHS256Token(context.Background(), "some_token")
 
 	assert.NoError(t, err)
