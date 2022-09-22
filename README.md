@@ -219,6 +219,9 @@ func (r RedisCache) Set(projectId string, value interface{}) {
 > make run
 ```
 
+### Testing & Mocks
+For ability testing application (replace Login API response with mockproxy) you can set https proxy address, for it use environment variable `HTTPS_PROXY`
+
 ### Возможные проблемы
 
 Возможна проблема загрузки:
