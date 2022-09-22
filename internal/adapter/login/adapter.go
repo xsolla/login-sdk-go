@@ -16,6 +16,7 @@ type Adapter struct {
 func NewAdapter(baseUrl string, ignoreSslErrors bool, timeout time.Duration, extraHeaderName, extraHeaderValue string) *Adapter {
 	//nolint:gosec
 	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: ignoreSslErrors,
 		},
