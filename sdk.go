@@ -6,10 +6,10 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"gitlab.loc/sdk-login/login-sdk-go/cache"
-	"gitlab.loc/sdk-login/login-sdk-go/contract"
-	"gitlab.loc/sdk-login/login-sdk-go/internal/adapter/login"
-	vl "gitlab.loc/sdk-login/login-sdk-go/internal/service/validator"
+	"github.com/xsolla/login-sdk-go/cache"
+	"github.com/xsolla/login-sdk-go/contract"
+	"github.com/xsolla/login-sdk-go/internal/adapter/login"
+	vl "github.com/xsolla/login-sdk-go/internal/service/validator"
 )
 
 const (

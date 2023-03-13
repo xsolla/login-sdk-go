@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"gitlab.loc/sdk-login/login-sdk-go/contract"
-	"gitlab.loc/sdk-login/login-sdk-go/model"
+	"github.com/xsolla/login-sdk-go/contract"
+	"github.com/xsolla/login-sdk-go/model"
 )
 
 type ProjectKeysGetter interface {

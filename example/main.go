@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"gitlab.loc/sdk-login/login-sdk-go"
+	"github.com/xsolla/login-sdk-go"
 )
 
 const (

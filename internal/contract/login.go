@@ -3,7 +3,7 @@ package contract
 import (
 	"context"
 
-	"gitlab.loc/sdk-login/login-sdk-go/model"
+	"github.com/xsolla/login-sdk-go/model"
 )
 
 type LoginAPI interface {
