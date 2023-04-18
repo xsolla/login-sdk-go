@@ -50,7 +50,7 @@ compile:
       - mybinary
 
 release:
-  image: node:14-buster-slim
+  image: node:18-buster-slim
   stage: release
   cache:
     key:
@@ -60,6 +60,7 @@ release:
       - node_modules/
   variables:
     GITLAB_TOKEN: $GITLAB_TOKEN
+    NODE_TLS_REJECT_UNAUTHORIZED: 0
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
   script:
