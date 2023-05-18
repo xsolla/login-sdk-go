@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 
 	"gitlab.loc/sdk-login/login-sdk-go/contract"
 )
