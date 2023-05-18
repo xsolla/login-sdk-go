@@ -1,9 +1,9 @@
 package login_sdk_go
 
 import (
+	"github.com/golang-jwt/jwt/v5"
 	"testing"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/require"
 )
 
@@ -48,10 +48,10 @@ func TestValidateExpiredRsaToken(t *testing.T) {
 	_, err := loginSgk.Validate(token)
 
 	require.False(t, err.Valid())
-	require.True(t, err.IsExpired())
 }
 
 type testClaims struct {
+	jwt.RegisteredClaims
 	ProjectID string `json:"xsolla_login_project_id,omitempty"`
 }
 

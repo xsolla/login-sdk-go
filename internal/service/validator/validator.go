@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 
 	sdkcontract "gitlab.loc/sdk-login/login-sdk-go/contract"
 	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
@@ -46,29 +46,11 @@ func (v *Validator) Validate(ctx context.Context, token string, claims sdkcontra
 
 func (v *Validator) validateToken(ctx context.Context, token string, claims sdkcontract.Claims) (*jwt.Token, error) {
 	parsedToken, err := jwt.ParseWithClaims(token, claims, v.getParserKeyFunction(ctx))
-	if err == nil {
-		if err = validateTokenClaims(parsedToken); err != nil {
-			return nil, err
-		}
-
-		return parsedToken, nil
-	}
-
-	// If there is no secret, validation via API
-	// return an error if token is invalid
-	// If there is no secret, validation via API
-	// return an error if token is invalid
-	validationErr, ok := err.(*jwt.ValidationError)
-	if !ok {
-		return nil, ErrFailedParseJWT
-	}
-
-	switch validationErr.Inner {
-	case keys.ErrSHASecretKeyIsEmpty:
-		return v.validateViaAPI(ctx, parsedToken, token)
-	default:
+	if err != nil {
 		return nil, err
 	}
+
+	return parsedToken, nil
 }
 
 func (v *Validator) getParserKeyFunction(ctx context.Context) jwt.Keyfunc {
@@ -89,10 +71,6 @@ func (v *Validator) validateViaAPI(ctx context.Context, parsedToken *jwt.Token, 
 	err := v.hs256LoginAPIValidator.Validate(ctx, tokenString)
 	if err != nil {
 		return nil, fmt.Errorf("v.hs256LoginAPIValidator.Validate: %w", err)
-	}
-
-	if err = validateTokenClaims(parsedToken); err != nil {
-		return nil, err
 	}
 
 	return parsedToken, nil

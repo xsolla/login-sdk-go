@@ -36,7 +36,7 @@ format:
     - go test -race $(go list ./... | grep -v /vendor/)
 
 lint:
-  image: golangci/golangci-lint:v1.44.2
+  image: golangci/golangci-lint:v1.52.2
   stage: lint
   script:
     - golangci-lint run -v

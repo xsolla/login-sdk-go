@@ -3,7 +3,7 @@ package login_sdk_go
 import (
 	"errors"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
@@ -15,29 +15,21 @@ type CustomClaims struct {
 	ProjectID string   `json:"xsolla_login_project_id,omitempty"`
 	Type      string   `json:"type,omitempty"`
 	Audience  []string `json:"aud,omitempty"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func (c CustomClaims) Valid() error {
-	vErr := new(jwt.ValidationError)
-
-	if c.Id == "" && c.Type == "oauth" {
-		vErr.Inner = ErrJTIClaimIsRequired
-		vErr.Errors |= jwt.ValidationErrorId
+	if c.ID == "" && c.Type == "oauth" {
+		return ErrJTIClaimIsRequired
 	}
 
 	if c.ProjectID == "" {
-		vErr.Inner = ErrXsollaClaimIsRequired
-		vErr.Errors |= jwt.ValidationErrorClaimsInvalid
+		return ErrXsollaClaimIsRequired
 	}
 
-	if vErr.Inner != nil {
-		return vErr
-	}
-
-	return c.StandardClaims.Valid()
+	return nil
 }
 
-func (c *CustomClaims) GetProjectID() string {
+func (c CustomClaims) GetProjectID() string {
 	return c.ProjectID
 }

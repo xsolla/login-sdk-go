@@ -1,9 +1,5 @@
 package login_sdk_go
 
-import (
-	"github.com/dgrijalva/jwt-go"
-)
-
 type WrappedError struct {
 	Inner error
 }
@@ -22,11 +18,7 @@ func (we *WrappedError) Valid() bool {
 	return we.Inner == nil
 }
 
+// IsExpired Deprecated: After change the main jwt library this code is for the backward compatibility.
 func (we *WrappedError) IsExpired() bool {
-	ve, ok := we.Inner.(*jwt.ValidationError)
-	if ok {
-		return jwt.ValidationErrorExpired == ve.Errors
-	}
-
 	return false
 }

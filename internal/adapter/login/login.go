@@ -43,7 +43,9 @@ func (a *Adapter) GetProjectKeysForLoginProject(ctx context.Context, projectID s
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
 	respBody, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -61,6 +63,7 @@ func (a *Adapter) GetProjectKeysForLoginProject(ctx context.Context, projectID s
 
 func (a *Adapter) ValidateHS256Token(ctx context.Context, token string) error {
 	values := map[string]string{"token": token}
+
 	data, err := json.Marshal(values)
 	if err != nil {
 		return fmt.Errorf("failed marshal data %w", err)
@@ -70,7 +73,10 @@ func (a *Adapter) ValidateHS256Token(ctx context.Context, token string) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
 	if response.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("%w:%d", ErrWrongStatusCode, response.StatusCode)

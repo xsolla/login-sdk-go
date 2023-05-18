@@ -55,6 +55,10 @@ linters:
     - gci # strange behavior
     - revive
     - gochecknoglobals
+    - typecheck
+    - nosnakecase
+    - exhaustruct
+    - unused
 
   disable-all: false
   presets:
