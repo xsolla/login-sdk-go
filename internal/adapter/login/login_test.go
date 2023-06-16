@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"gitlab.loc/sdk-login/login-sdk-go/model"
+	"github.com/xsolla/login-sdk-go/model"
 )
 
 func TestHttpLoginApi_GetProjectKeysForLoginProject(t *testing.T) {

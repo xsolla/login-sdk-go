@@ -7,10 +7,10 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	sdkcontract "gitlab.loc/sdk-login/login-sdk-go/contract"
-	"gitlab.loc/sdk-login/login-sdk-go/internal/contract"
-	"gitlab.loc/sdk-login/login-sdk-go/internal/service/apivalidator"
-	"gitlab.loc/sdk-login/login-sdk-go/keys"
+	sdkcontract "github.com/xsolla/login-sdk-go/contract"
+	"github.com/xsolla/login-sdk-go/internal/contract"
+	"github.com/xsolla/login-sdk-go/internal/service/apivalidator"
+	"github.com/xsolla/login-sdk-go/keys"
 )
 
 var (

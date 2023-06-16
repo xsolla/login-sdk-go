@@ -7,7 +7,7 @@ include:
 image: golang:latest
 
 variables:
-  REPO_NAME: gitlab.loc/sdk-login/login-sdk-go
+  REPO_NAME: github.com/xsolla/login-sdk-go
   GIT_SSL_NO_VERIFY: "true"
 
 # The problem is that to be able to use go get, one needs to put

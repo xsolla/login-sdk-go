@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"gitlab.loc/sdk-login/login-sdk-go/contract"
+	"github.com/xsolla/login-sdk-go/contract"
 )
 
 var (

@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"gitlab.loc/sdk-login/login-sdk-go/model"
+	"github.com/xsolla/login-sdk-go/model"
 )
 
 type cacheTestClient struct {

@@ -11,7 +11,7 @@ SDK поддерживает валидацию токенов со следую
 package main
 
 import (
-    "gitlab.loc/sdk-login/login-sdk-go"
+    "github.com/xsolla/login-sdk-go"
     "fmt"
     "os"
 )
@@ -41,7 +41,7 @@ func main() {
 package main
 
 import (
-    "gitlab.loc/sdk-login/login-sdk-go"
+    "github.com/xsolla/login-sdk-go"
     "fmt"
     "os"
 )
@@ -81,7 +81,7 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.loc/sdk-login/login-sdk-go"
+	"github.com/xsolla/login-sdk-go"
 )
 
 type YourClaims struct {
@@ -117,7 +117,7 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.loc/sdk-login/login-sdk-go"
+	"github.com/xsolla/login-sdk-go"
 )
 
 type YourClaims struct {
@@ -227,16 +227,16 @@ For ability testing application (replace Login API response with mockproxy) you 
 
 Возможна проблема загрузки:
 ```
-go get -u "gitlab.loc/sdk-login/login-sdk-go"
-go: downloading gitlab.loc/sdk-login/login-sdk-go v0.1.1
-go get: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: verifying module: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: reading https://sum.golang.org/lookup/gitlab.loc/sdk-login/login-sdk-go@v0.1.1: 410 Gone server response: not found: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: unrecognized import path "gitlab.loc/sdk-login/login-sdk-go": https fetch: Get "https://gitlab.loc/sdk-login/login-sdk-go?go-get=1": dial tcp: lookup gitlab.loc on 8.8.8.8:53: no such host 
+go get -u "github.com/xsolla/login-sdk-go"
+go: downloading github.com/xsolla/login-sdk-go v0.1.1
+go get: github.com/xsolla/login-sdk-go@v0.1.1: verifying module: github.com/xsolla/login-sdk-go@v0.1.1: reading https://sum.golang.org/lookup/github.com/xsolla/login-sdk-go@v0.1.1: 410 Gone server response: not found: github.com/xsolla/login-sdk-go@v0.1.1: unrecognized import path "github.com/xsolla/login-sdk-go": https fetch: Get "https://github.com/xsolla/login-sdk-go?go-get=1": dial tcp: lookup gitlab.loc on 8.8.8.8:53: no such host 
 ```
 Причина: загрузка кода из приватного репозитория. <br>
 Для решения необходимо установить переменную GOPRIVATE следующим образом:
 ```
-go env -w GOPRIVATE=gitlab.loc/sdk-login/login-sdk-go
+go env -w GOPRIVATE=github.com/xsolla/login-sdk-go
 ```
 Для проверки необходимо выполнить: 
 ```
-go get -u "gitlab.loc/sdk-login/login-sdk-go"
+go get -u "github.com/xsolla/login-sdk-go"
 ```

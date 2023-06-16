@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"gitlab.loc/sdk-login/login-sdk-go/keys"
-	"gitlab.loc/sdk-login/login-sdk-go/model"
+	"github.com/xsolla/login-sdk-go/keys"
+	"github.com/xsolla/login-sdk-go/model"
 )
 
 type RedisCache struct {
