@@ -1,7 +1,6 @@
 package login
 
 import (
-	"crypto/tls"
 	"net/http"
 	"time"
 )
@@ -13,15 +12,14 @@ type Adapter struct {
 	extraHeaderValue string
 }
 
-func NewAdapter(baseUrl string, ignoreSslErrors bool, timeout time.Duration, extraHeaderName, extraHeaderValue string) *Adapter {
+func NewAdapter(
+	baseUrl string,
+	timeout time.Duration,
+	extraHeaderName,
+	extraHeaderValue string,
+	transport *http.Transport,
+) *Adapter {
 	//nolint:gosec
-	transport := &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: ignoreSslErrors,
-		},
-	}
-
 	return &Adapter{
 		client: &http.Client{
 			Transport: transport,

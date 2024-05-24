@@ -1,8 +1,10 @@
 package login_sdk_go
 
 import (
-	"github.com/golang-jwt/jwt/v5"
+	"net/http"
 	"testing"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/stretchr/testify/require"
 )
@@ -34,6 +36,15 @@ func TestValidateHmacToken(t *testing.T) {
 func TestValidateValidHmacTokenWithLoginApi(t *testing.T) {
 	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ4c29sbGFfbG9naW5fcHJvamVjdF9pZCI6IjEyMyIsImp0aSI6InRlc3QtanRpIn0.Y8NT2mX8q7MshRGUElQMWEhoLa8hnS2rZ3BL5XgtcVo"
 	loginSgk, _ := New(Config{})
+	parsedToken, err := loginSgk.Validate(token)
+
+	require.IsType(t, &jwt.Token{}, parsedToken)
+	require.False(t, err.Valid())
+}
+
+func TestValidateValidHmacTokenWithCustomTransport(t *testing.T) {
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ4c29sbGFfbG9naW5fcHJvamVjdF9pZCI6IjEyMyIsImp0aSI6InRlc3QtanRpIn0.Y8NT2mX8q7MshRGUElQMWEhoLa8hnS2rZ3BL5XgtcVo"
+	loginSgk, _ := New(Config{Transport: &http.Transport{}})
 	parsedToken, err := loginSgk.Validate(token)
 
 	require.IsType(t, &jwt.Token{}, parsedToken)
