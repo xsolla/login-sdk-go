@@ -2,6 +2,7 @@ package login_sdk_go
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -26,6 +27,7 @@ type Config struct {
 	APITimeout       time.Duration
 	ExtraHeaderName  string
 	ExtraHeaderValue string
+	Transport        *http.Transport
 }
 
 type ConfigOption func(*Config)
@@ -42,8 +44,13 @@ type LoginSdk struct {
 func New(config Config) (*LoginSdk, error) {
 	config.fillDefaults()
 
-	loginApi := login.NewAdapter(config.LoginAPIURL, config.IgnoreSslErrors, config.APITimeout,
-		config.ExtraHeaderName, config.ExtraHeaderValue)
+	loginApi := login.NewAdapter(
+		config.LoginAPIURL,
+		config.APITimeout,
+		config.ExtraHeaderName,
+		config.ExtraHeaderValue,
+		config.Transport,
+	)
 
 	validator, err := vl.New(vl.Config{
 		ShaSecretKey: config.ShaSecretKey,
@@ -71,6 +78,9 @@ func (c *Config) fillDefaults() {
 	}
 	if c.APITimeout == 0 {
 		c.APITimeout = defaultAPITimeout
+	}
+	if c.Transport == nil {
+		c.Transport = login.NewDefaultTransport(c.IgnoreSslErrors)
 	}
 }
 
