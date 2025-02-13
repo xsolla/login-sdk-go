@@ -1,17 +1,17 @@
 # Login SDK (Golang)
-Данный SDK предназначет для валидации различных видов JWT, которые 
-используются для авторизации запросов с помощью Xsolla Login.
-SDK поддерживает валидацию токенов со следующими алгоритмами шифрования:
-* HS253 (HMAC): используется секрет, задаваемый при конфигурации SDK;
-* RS256: используется публичный ключ для проверки токена;
+The Xsolla Login SDK for Go is designed to validate various types of JWTs
+used for authorizing requests via Xsolla Login.
+The SDK supports token validation with the following encryption algorithms:
+* HS253 (HMAC): Utilizes a secret key specified during SDK configuration;
+* RS256: Employs a public key to verify the token;
 
-## Использование 
+## Usage
 
 ```go
 package main
 
 import (
-    "github.com/xsolla/login-sdk-go"
+    "gitlab.loc/sdk-login/login-sdk-go"
     "fmt"
     "os"
 )
@@ -36,12 +36,12 @@ func main() {
     fmt.Println("Success!")
 }
 ```
-При необходимости такой валидации необходимо указать секрет:
+If validation with HS256 tokens is required, specify the secret as follows:
 ```go
 package main
 
 import (
-    "github.com/xsolla/login-sdk-go"
+    "gitlab.loc/sdk-login/login-sdk-go"
     "fmt"
     "os"
 )
@@ -66,14 +66,14 @@ func main() {
     fmt.Println("Success!")
 }
 ```
-Следует отметить, что если указан секрет, то только он будет использоваться
-для валидации токенов HS256. В случае, если секрет не указан, то для таких токенов
-будет использоваться Login HTTP API, т.е. таким образом можно валидировать токены
+Note: If a secret is specified, it will be exclusively used
+for validating HS256 tokens. If the secret is not provided,
+the Login HTTP API will be utilized for such tokens, allowing
+validation across **different projects**.
 
-**разных проектов**.
-
-#### Для валидации с кастомными(своими) клеймсами есть 2 способа:
-1. Композиция `login_sdk_go.CustomClaims` в свои кастомные клеймсы;
+#### Validating with Custom Claims:
+There are two methods to validate tokens with custom claims:
+1. Composing `login_sdk_go.CustomClaims` into your custom claims;
 ```go
 package main
 
@@ -81,7 +81,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/xsolla/login-sdk-go"
+	"gitlab.loc/sdk-login/login-sdk-go"
 )
 
 type YourClaims struct {
@@ -109,7 +109,7 @@ func main() {
 	fmt.Println("Success!")
 }
 ```
-2. Полная реализация интерфейса `Claims`, а именно, методы `Valid()` и `GetProjectID()` последний нужен для работы с LoginAPI.
+2. Fully implementing the `Claims` interface, specifically the `Valid()` and `GetProjectID()` methods (the latter is required for working with the Login API);
 ```go
 package main
 
@@ -117,7 +117,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/xsolla/login-sdk-go"
+	"gitlab.loc/sdk-login/login-sdk-go"
 )
 
 type YourClaims struct {
@@ -153,25 +153,23 @@ func main() {
 }
 ```
 
-### Конфигурация:
+### Configuration options:
 ```
-ShaSecretKey        - Симметричный ключ (если используется симметричная подпись)
-Cache               - Интерфейс для работы с кэшом (опционально).
-ExtraHeaderName     - Название для дополнительного заголовка;
-ExtraHeaderValue    - Значение для дополнительного заголовка;
-APITimeout          - Timeout для вызовов к API. Значению по умолчанию - 5 секунд. (опционально).
+ShaSecretKey        - Symmetric key (if symmetric signing is used);
+Cache               - Interface for cache operations (optional);
+ExtraHeaderName     - Name for an additional header;
+ExtraHeaderValue    - Value for the additional header;
+APITimeout          - Timeout for API calls. Defaults to 5 seconds (optional).
 ```
-**NOTE:** При использовании кастомной реализации кеша (например через Redis), необходимо
-обязательно указывать TTL для хранения ключей не более чем в 10 минут. <br>
-В случае, если нет кастомной реализации кеша, будет использоваться кеш, располагающийся в 
-оперативной памяти приложения.<br>
-**Дополнительный заголовок**
-Дополнительный заголовек нужен, в частности, для обхода
-механизма рейт лимитов на стороне Login API. Название и значение для 
-такого заголовка запрашиваются каждой командой индивидуально.
-В случае, если название заголовока не указана, заголовок не добавляется.
+**NOTE:** When using a custom cache implementation (e.g., via Redis),
+ensure that the TTL for storing keys does not exceed 10 minutes.
+If no custom cache is provided, an in-memory cache will be used.
+**Additional Header:**
+An additional header is used to bypass rate-limiting mechanisms on the Login API side.
+The header's name and value are provided individually by each team.
+If the header name is not specified, the header is not added.
 
-#### Пример реализации кеша через Redis:
+#### Example of Redis Cache Implementation:
 ```go
 package cache
 
@@ -212,31 +210,33 @@ func (r RedisCache) Set(projectId string, value interface{}) {
 }
 ```
 
-### Пример
-Пример использования см в `/example`<br>
-Для сборки и запуска можно использовать следующие команды:
+### Example
+For usage examples, see the `/example`directory.
+To build and run, you can use the following commands:
 ```shell
 > make build 
 > make run
 ```
 
 ### Testing & Mocks
+
 For ability testing application (replace Login API response with mockproxy) you can set https proxy address, for it use environment variable `HTTPS_PROXY`
 
-### Возможные проблемы
+### Possible Issues
 
-Возможна проблема загрузки:
+A potential loading issue may occur:
 ```
-go get -u "github.com/xsolla/login-sdk-go"
-go: downloading github.com/xsolla/login-sdk-go v0.1.1
-go get: github.com/xsolla/login-sdk-go@v0.1.1: verifying module: github.com/xsolla/login-sdk-go@v0.1.1: reading https://sum.golang.org/lookup/github.com/xsolla/login-sdk-go@v0.1.1: 410 Gone server response: not found: github.com/xsolla/login-sdk-go@v0.1.1: unrecognized import path "github.com/xsolla/login-sdk-go": https fetch: Get "https://github.com/xsolla/login-sdk-go?go-get=1": dial tcp: lookup gitlab.loc on 8.8.8.8:53: no such host 
+go get -u "gitlab.loc/sdk-login/login-sdk-go"
+go: downloading gitlab.loc/sdk-login/login-sdk-go v0.1.1
+go get: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: verifying module: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: reading https://sum.golang.org/lookup/gitlab.loc/sdk-login/login-sdk-go@v0.1.1: 410 Gone server response: not found: gitlab.loc/sdk-login/login-sdk-go@v0.1.1: unrecognized import path "gitlab.loc/sdk-login/login-sdk-go": https fetch: Get "https://gitlab.loc/sdk-login/login-sdk-go?go-get=1": dial tcp: lookup gitlab.loc on 8.8.8.8:53: no such host 
 ```
-Причина: загрузка кода из приватного репозитория. <br>
-Для решения необходимо установить переменную GOPRIVATE следующим образом:
+Cause: Loading code from a private repository.
+
+Solution: Set the GOPRIVATE variable as follows:
 ```
-go env -w GOPRIVATE=github.com/xsolla/login-sdk-go
+go env -w GOPRIVATE=gitlab.loc/sdk-login/login-sdk-go
 ```
-Для проверки необходимо выполнить: 
+To verify, execute the following:
 ```
-go get -u "github.com/xsolla/login-sdk-go"
+go get -u "gitlab.loc/sdk-login/login-sdk-go"
 ```
